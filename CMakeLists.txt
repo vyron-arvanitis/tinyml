@@ -10,6 +10,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(tinyml
     src/main.cpp
     src/animal.cpp
+    src/matrix.cpp
 )
 
 # Include path for headers
