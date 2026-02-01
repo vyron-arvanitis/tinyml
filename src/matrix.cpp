@@ -28,4 +28,19 @@ namespace tinyml
         return data_[row * cols_ + col];
     }
 
+    Matrix Matrix::mat_mul(const Matrix &other_matrix) const{
+        std::size_t new_rows = this->rows_;
+        std::size_t new_cols = other_matrix.cols();
+
+        Matrix new_matrix = Matrix(new_rows, new_cols);
+        for(std::size_t i=0; i<this->rows_; i++){
+            for(std::size_t j=0; j<other_matrix.cols(); j++){
+                for(std::size_t k=0; k<cols_; k++){
+                    new_matrix.data_[i*new_cols+j] += this->data_[i*cols_+k]*other_matrix.data_[k*other_matrix.cols_ +j];
+                }
+            }
+        }
+        return new_matrix;
+
+    }
 }
