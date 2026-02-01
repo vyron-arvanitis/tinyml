@@ -1,5 +1,6 @@
 #include "matrix.h"
 #include <cstddef>
+#include <stdexcept>
 
 namespace tinyml
 {
@@ -28,19 +29,31 @@ namespace tinyml
         return data_[row * cols_ + col];
     }
 
-    Matrix Matrix::mat_mul(const Matrix &other_matrix) const{
-        std::size_t new_rows = this->rows_;
-        std::size_t new_cols = other_matrix.cols();
+    Matrix Matrix::mat_mul(const Matrix &other) const
+    {
 
-        Matrix new_matrix = Matrix(new_rows, new_cols);
-        for(std::size_t i=0; i<this->rows_; i++){
-            for(std::size_t j=0; j<other_matrix.cols(); j++){
-                for(std::size_t k=0; k<cols_; k++){
-                    new_matrix.data_[i*new_cols+j] += this->data_[i*cols_+k]*other_matrix.data_[k*other_matrix.cols_ +j];
+        if (cols_ != other.rows_)
+        {
+            throw std::invalid_argument("mat_mul: shape mismatch");
+        }
+        const std::size_t m = rows_;
+        const std::size_t k = cols_;
+        const std::size_t n = other.cols_;
+
+        Matrix out(m, n);
+
+        for (std::size_t i = 0; i < m; ++i)
+        {
+            for (std::size_t t = 0; t < k; ++t)
+            {
+                const value_type a_it = data_[index(i, t)];
+                for (std::size_t j = 0; j < n; ++j)
+                {
+                    out.data_[out.index(i, j)] += a_it * other.data_[other.index(t, j)];
                 }
             }
         }
-        return new_matrix;
 
+        return out;
     }
 }

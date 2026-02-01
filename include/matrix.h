@@ -26,6 +26,9 @@ namespace tinyml
         Matrix mat_mul(const Matrix &other_matrix) const;
 
     private:
+        // Convert (row, col) to flat index (row-major).
+        std::size_t index(std::size_t row, std::size_t col) const {return row* cols_ + col;}
+
         std::size_t rows_;
         std::size_t cols_;
         std::vector<value_type> data_;
