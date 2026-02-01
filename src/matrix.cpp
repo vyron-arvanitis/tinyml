@@ -17,6 +17,11 @@ namespace tinyml
 
     std::size_t Matrix::cols() const { return cols_; }
 
+    void Matrix::set(std::size_t row, std::size_t col, value_type value)
+    {
+        data_[row * cols_ + col] = value;
+    }
+
     Matrix::value_type Matrix::get(std::size_t row, std::size_t col) const
     {
 
