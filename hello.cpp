@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <typeinfo>
+#include <vector>
 
 int main()
 {
@@ -56,13 +57,13 @@ int main()
     // std::cout << "Value of pCars type  " << typeid(*pCars_0).name() << "\n";
     // std::cout << "The type fo the cars varivable is " << typeid(cars).name() << "\n";
     std::cout << "----------------------------\n";
-    std::vector<std::string>* pCars = &cars;
+    std::vector<std::string> *pCars = &cars;
 
     std::cout << "Pointer to a std::vector<std::string>\n\n";
 
     // 1) Addresses: vector object vs pointer variable
-    std::cout << "Address of vector object (&cars):           " << &cars  << "\n";
-    std::cout << "Pointer value (pCars == &cars):             " << pCars  << "\n";
+    std::cout << "Address of vector object (&cars):           " << &cars << "\n";
+    std::cout << "Pointer value (pCars == &cars):             " << pCars << "\n";
     std::cout << "Address of pointer variable (&pCars):       " << &pCars << "\n\n";
 
     // 2) What pCars[0] and pCars[1] really mean (array-style access on a pointer)
@@ -79,11 +80,30 @@ int main()
 
     // 4) Addresses related to the vector's internal storage (elements live in a buffer)
     std::cout << "Address of internal element buffer (cars.data()): "
-              << static_cast<const void*>(cars.data()) << "\n";
+              << static_cast<const void *>(cars.data()) << "\n";
     std::cout << "Address of std::string object cars[0]:       " << &cars[0] << "\n";
     std::cout << "Address of std::string object cars[1]:       " << &cars[1] << "\n";
 
+    std::cout << "----------------------------\n";
+    std::cout << "Another wayt o reate a vector!!!!!!!!!!!\n";
+    std::vector<int> v(5, 42);           // [42,42,42,42,42]
+    std::vector<std::string> s(3, "hi"); // ["hi","hi","hi"]
+    std::cout << "The v[0] vector is " << v[0] << "\n";
+    std::cout << "The v[1] vector is " << v[1] << "\n";
+    std::cout << "The v[2] vector is " << v[2] << "\n";
+    std::cout << "The v[3] vector is " << v[3] << "\n";
 
+    std::cout << "The s[1] vector is " << s[1] << "\n";
+    std::cout << "Example of the brace initialization float  " << float{} << "\n";
+    std::cout << "Example of the brace initialization double " << double{} << "\n";
+    std::cout << "Example of the brace initialization int " << int{} << "\n";
+    std::cout << "Example of the brace initialization string " << std::string{} << "\n";
+    std::cout << "vector<int>{5}.size() = " << std::vector<int>{5}.size() << "\n";
+    std::cout << "vector<int>{5, 1, 1}.size() = " << std::vector<int>{5, 1, 1}.size() << "\n";
+
+    std::cout <<"\nTesting out the std::size_t" << std::size_t(5) << " Size of this is " << sizeof(std::size_t(5));
+    std::cout <<"\nTesting out the float" << float(5) ;
+    std::cout <<"\nTesting out the int" << int(5) ;
 
     return 0;
 }
