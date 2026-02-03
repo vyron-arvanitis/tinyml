@@ -32,7 +32,7 @@ namespace tinyml
         return (*this)(row, col);
     }
 
-     Matrix::value_type &Matrix::operator()(std::size_t row, std::size_t col)
+    Matrix::value_type &Matrix::operator()(std::size_t row, std::size_t col)
     {
         return data_[index(row, col)];
     }
@@ -42,7 +42,8 @@ namespace tinyml
         return data_[index(row, col)];
     }
 
-    Matrix Matrix::operator*(const Matrix& other) const{
+    Matrix Matrix::operator*(const Matrix &other) const
+    {
         return (*this).mat_mul(other);
     }
 
@@ -55,9 +56,13 @@ namespace tinyml
             for (std::size_t j = 0; j < cols_; ++j)
             {
                 out(j, i) = (*this)(i, j); // (*this)(i, j)  ==  this->operator()(i, j)
-
             }
         }
         return out;
+    }
+
+    std::size_t Matrix::len() const
+    {
+        return rows_ * cols_;
     }
 }

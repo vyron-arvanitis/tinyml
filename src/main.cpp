@@ -28,7 +28,7 @@ int main()
     n(1, 1) = 50;
     std::cout << "The first element (after changing it) of the new matrix `n` is : " << n(1, 1) << "\n";
 
-    tinyml::Matrix c = m*n;
+    tinyml::Matrix c = m * n;
     std::cout << "Multiply matrices m x n  " << "\n";
     for (std::size_t i = 0; i < n.rows(); ++i)
     {
@@ -38,7 +38,19 @@ int main()
         }
     }
 
+    std::cout << "Multiply matrices (1X3)(3X1) " << "\n";
+    tinyml::Matrix m_13 = tinyml::random_uniform(1, 3, 0, 1, rng);
+    tinyml::Matrix m_31 = tinyml::random_uniform(3, 1, 0, 1, rng);
+    tinyml::Matrix scalar = m_13 * m_31;
+    for (std::size_t i = 0; i < scalar.rows(); ++i)
+    {
+        for (std::size_t j = 0; j < scalar.cols(); ++j)
+        {
+            std::cout << scalar(i, j) << (j + 1 == scalar.cols() ? '\n' : ' ');
+        }
+    }
 
+    std::cout << "And the length of the scalar object is: " << scalar.len() << "\n";
 
     return 0;
 }

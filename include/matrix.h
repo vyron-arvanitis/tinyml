@@ -41,6 +41,8 @@ namespace tinyml
 
         Matrix operator*(const Matrix& other) const;
 
+        std::size_t len() const;
+
     private:
         // Convert (row, col) to flat index (row-major).
         std::size_t index(std::size_t row, std::size_t col) const { return row * cols_ + col; }
