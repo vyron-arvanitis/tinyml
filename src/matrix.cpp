@@ -54,7 +54,8 @@ namespace tinyml
         {
             for (std::size_t j = 0; j < cols_; ++j)
             {
-                out(j, i) = (*this)(i, j); // exactly equivalent to `this->(i,j)`
+                out(j, i) = (*this)(i, j); // (*this)(i, j)  ==  this->operator()(i, j)
+
             }
         }
         return out;
