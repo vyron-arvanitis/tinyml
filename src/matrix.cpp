@@ -23,7 +23,7 @@ namespace tinyml
 
     void Matrix::set(std::size_t row, std::size_t col, value_type value)
     {
-        (*this)(row, col) = value; // exactly equivalent to `this->(i,j) = value`;
+        (*this)(row, col) = value; // exactly equivalent to `this->operator()(i, j) = value`;
     }
 
     Matrix::value_type Matrix::get(std::size_t row, std::size_t col) const
