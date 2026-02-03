@@ -50,7 +50,7 @@ namespace tinyml
     Matrix Matrix::transpose() const
     {
 
-        Matrix out(rows_, cols_);
+        Matrix out(cols_, rows_);
         for (std::size_t i = 0; i < rows_; ++i)
         {
             for (std::size_t j = 0; j < cols_; ++j)
