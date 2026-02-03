@@ -16,44 +16,47 @@ namespace tinyml
         return rows_;
     }
 
-    std::size_t Matrix::cols() const { return cols_; }
+    std::size_t Matrix::cols() const
+    {
+        return cols_;
+    }
 
     void Matrix::set(std::size_t row, std::size_t col, value_type value)
     {
-        data_[row * cols_ + col] = value;
+        (*this)(row, col) = value; // exactly equivalent to `this->(i,j) = value`;
     }
 
     Matrix::value_type Matrix::get(std::size_t row, std::size_t col) const
     {
 
-        return data_[row * cols_ + col];
+        return (*this)(row, col);
     }
 
-    Matrix Matrix::mat_mul(const Matrix &other) const
+     Matrix::value_type &Matrix::operator()(std::size_t row, std::size_t col)
+    {
+        return data_[index(row, col)];
+    }
+
+    const Matrix::value_type &Matrix::operator()(std::size_t row, std::size_t col) const
+    {
+        return data_[index(row, col)];
+    }
+
+    Matrix Matrix::operator*(const Matrix& other) const{
+        return (*this).mat_mul(other);
+    }
+
+    Matrix Matrix::transpose() const
     {
 
-        if (cols_ != other.rows_)
+        Matrix out(rows_, cols_);
+        for (std::size_t i = 0; i < rows_; ++i)
         {
-            throw std::invalid_argument("mat_mul: shape mismatch");
-        }
-        const std::size_t m = rows_;
-        const std::size_t k = cols_;
-        const std::size_t n = other.cols_;
-
-        Matrix out(m, n);
-
-        for (std::size_t i = 0; i < m; ++i)
-        {
-            for (std::size_t t = 0; t < k; ++t)
+            for (std::size_t j = 0; j < cols_; ++j)
             {
-                const value_type a_it = data_[index(i, t)];
-                for (std::size_t j = 0; j < n; ++j)
-                {
-                    out.data_[out.index(i, j)] += a_it * other.data_[other.index(t, j)];
-                }
+                out(j, i) = (*this)(i, j); // exactly equivalent to `this->(i,j)`
             }
         }
-
         return out;
     }
 }
