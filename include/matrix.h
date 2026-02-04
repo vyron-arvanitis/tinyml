@@ -6,7 +6,7 @@
 
 namespace tinyml
 {      
-    class Matrix;  
+    class Matrix;   // forward declaration (promises Matrix exists later)
 
     //Printing the matrix
     std::ostream& operator<<(std::ostream& os, const Matrix& matrix);
