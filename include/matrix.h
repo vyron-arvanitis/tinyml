@@ -2,14 +2,14 @@
 #include <cstddef>
 #include <vector>
 #include <stdexcept>
-#include <iosfwd>   
+#include <iosfwd>
 
 namespace tinyml
-{      
-    class Matrix;   // forward declaration (promises Matrix exists later)
+{
+    class Matrix; // forward declaration (promises Matrix exists later)
 
-    //Printing the matrix
-    std::ostream& operator<<(std::ostream& os, const Matrix& matrix);
+    // Printing the matrix
+    std::ostream &operator<<(std::ostream &os, const Matrix &matrix);
     class Matrix
     {
     public:
@@ -54,16 +54,15 @@ namespace tinyml
         Matrix &operator*=(value_type scalar);       // Matrix* scaler returns mutated object
         Matrix operator*(value_type scalar) const;   // Matrix* scaler returns new object
 
-        Matrix &operator+=(const Matrix &other); 
+        Matrix &operator+=(const Matrix &other);
         Matrix operator+(const Matrix &other) const;
 
-        Matrix &operator-=(const Matrix &other); 
+        Matrix &operator-=(const Matrix &other);
         Matrix operator-(const Matrix &other) const;
 
         std::size_t size() const;
 
         Shape shape() const;
-
 
     private:
         // Convert (row, col) to flat index (row-major).
@@ -71,9 +70,9 @@ namespace tinyml
 
         // Private Method that multiplies matrices used by the operator*()
         Matrix mat_mul_(const Matrix &other) const;
-        
+
         void check_bounds_(std::size_t row, std::size_t col) const;
-        void check_same_shape_(const Matrix& other) const;
+        void check_same_shape_(const Matrix &other) const;
 
         std::size_t rows_;
         std::size_t cols_;
