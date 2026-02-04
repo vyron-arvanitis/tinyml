@@ -20,7 +20,7 @@ namespace tinyml
 
     protected:
         Matrix last_y_hat_; // could have also been const Matrix last_y_hat = nullptr; this raises issue of lifetime!
-        Matrix last_y_; 
+        Matrix last_y_; //TODO[LATER]: consider implementing the above idea later!
     };
 
     class MSELoss final : public Loss
