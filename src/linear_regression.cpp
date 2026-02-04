@@ -1,8 +1,6 @@
 #include "matrix.h"
 #include <iostream>
-
-#include "../include/linear_regression.h"
-#include "linear_regression/h"
+#include "linear_regression.h"
 
 
 namespace tinyml {
