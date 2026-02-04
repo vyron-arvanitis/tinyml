@@ -15,6 +15,12 @@ namespace tinyml
     public:
         using value_type = float;
 
+        struct Shape
+        {
+            std::size_t rows;
+            std::size_t cols;
+        };
+
         Matrix(std::size_t rows, std::size_t cols);
 
         std::size_t rows() const; // the const means that this function is not allowed tomodify the object
@@ -55,6 +61,9 @@ namespace tinyml
         Matrix operator-(const Matrix &other) const;
 
         std::size_t size() const;
+
+        Shape shape() const;
+
 
     private:
         // Convert (row, col) to flat index (row-major).

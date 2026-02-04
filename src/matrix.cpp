@@ -198,4 +198,9 @@ namespace tinyml
     {
         return rows_ * cols_;
     }
+
+    Matrix::Shape Matrix::shape()const{
+        return {rows_, cols_};
+    }
+
 }
