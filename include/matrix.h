@@ -3,13 +3,11 @@
 #include <vector>
 #include <stdexcept>
 
-namespace tinyml
-{
-
-    class Matrix
-    {
+namespace tinyml {
+    class Matrix {
     public:
         using value_type = float;
+
         Matrix(std::size_t rows, std::size_t cols);
 
         std::size_t rows() const; // the const means that this function is not allowed tomodify the object
@@ -39,7 +37,15 @@ namespace tinyml
         // Method that transposes the matrix
         Matrix transpose() const;
 
-        Matrix operator*(const Matrix& other) const;
+        Matrix operator*(const Matrix &other) const; // Matrix * Matrix
+        Matrix operator*(value_type scalar) const; // Matrix* scaler returns new object
+        Matrix &operator*=(value_type scalar); // Matrix* scaler returns mutated object
+
+
+        Matrix operator+(const Matrix &other) const;
+
+        Matrix operator-(const Matrix &other) const;
+
 
         std::size_t len() const;
 
@@ -48,11 +54,8 @@ namespace tinyml
         std::size_t index(std::size_t row, std::size_t col) const { return row * cols_ + col; }
 
         // Private Method that multiplies matrices used by the operator*()
-        Matrix mat_mul(const Matrix &other) const
-        {
-
-            if (cols_ != other.rows_)
-            {
+        Matrix mat_mul_(const Matrix &other) const {
+            if (cols_ != other.rows_) {
                 throw std::invalid_argument("mat_mul: shape mismatch");
             }
             const std::size_t m = rows_;
@@ -61,15 +64,42 @@ namespace tinyml
 
             Matrix out(m, n);
 
-            for (std::size_t i = 0; i < m; ++i)
-            {
-                for (std::size_t t = 0; t < k; ++t)
-                {
+            for (std::size_t i = 0; i < m; ++i) {
+                for (std::size_t t = 0; t < k; ++t) {
                     const value_type a_it = (*this)(i, t); // exactly equivalent to `this->(i,t)`
-                    for (std::size_t j = 0; j < n; ++j)
-                    {
+                    for (std::size_t j = 0; j < n; ++j) {
                         out(i, j) += a_it * other(t, j);
                     }
+                }
+            }
+
+            return out;
+        }
+
+        Matrix mat_addition_(const Matrix &other) const {
+            if (rows_ != other.rows_ || cols_ != other.cols_) {
+                throw std::invalid_argument("mat_addition: shape mismatch");
+            }
+            Matrix out(rows_, cols_);
+
+            for (std::size_t i = 0; i < rows_; ++i) {
+                for (std::size_t j = 0; j < cols_; ++j) {
+                    out(i, j) = (*this)(i, j) + other(i, j);
+                }
+            }
+
+            return out;
+        }
+
+        Matrix mat_subtraction_(const Matrix &other) const {
+            if (rows_ != other.rows_ || cols_ != other.cols_) {
+                throw std::invalid_argument("mat_subtraction_: shape mismatch");
+            }
+            Matrix out(rows_, cols_);
+
+            for (std::size_t i = 0; i < rows_; ++i) {
+                for (std::size_t j = 0; j < cols_; ++j) {
+                    out(i, j) = (*this)(i, j) - other(i, j);
                 }
             }
 
@@ -81,4 +111,5 @@ namespace tinyml
         std::vector<value_type> data_;
     };
 
+    Matrix operator*(Matrix::value_type scalar, const Matrix &m);
 }

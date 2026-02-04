@@ -14,7 +14,7 @@ namespace tinyml
 
         LinearRegression(Options opts = {});
         
-        void fit(Matrix &X, Matrix &b);
+        void fit(Matrix &X, Matrix &y);
 
         Matrix predict(Matrix &X) const;
 
@@ -22,6 +22,8 @@ namespace tinyml
         const Matrix &bias() const;
 
     private:
+        float learning_rate_;
+        std::size_t epochs_;
         Matrix weights_;
         Matrix bias_;
         bool fitted_ = false;

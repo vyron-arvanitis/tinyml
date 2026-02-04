@@ -52,5 +52,31 @@ int main()
 
     std::cout << "And the length of the scalar object is: " << scalar.len() << "\n";
 
+    std::cout << " Addition of matrices (1X3)(3X1) " << "\n";
+    tinyml::Matrix matrix_add = m_13 + m_13;
+    std::cout << "The reuslt of the addition of matrices is" << "\n";
+
+    for (std::size_t i = 0; i < matrix_add.rows(); ++i)
+    {
+        for (std::size_t j = 0; j < matrix_add.cols(); ++j)
+        {
+            std::cout << matrix_add(i, j) << (j + 1 == matrix_add.cols() ? '\n' : ' ');
+        }
+    }
+
+
+    std::cout << " Subtraction of matrices (1X3)(3X1) " << "\n";
+    tinyml::Matrix matrix_sub = m_13*4 - 2*m_13;
+    std::cout << "The result of the addition of matrices is" << "\n";
+
+    for (std::size_t i = 0; i < matrix_sub.rows(); ++i)
+    {
+        for (std::size_t j = 0; j < matrix_sub.cols(); ++j)
+        {
+            std::cout << matrix_sub(i, j) << (j + 1 == matrix_sub.cols() ? '\n' : ' ');
+        }
+    }
+
+
     return 0;
 }
