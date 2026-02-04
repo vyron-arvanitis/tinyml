@@ -13,7 +13,7 @@ namespace tinyml
         };
 
         LinearRegression(Options opts = {});
-        
+
         void fit(Matrix &X, Matrix &y);
 
         Matrix predict(Matrix &X) const;
