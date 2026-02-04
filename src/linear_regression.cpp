@@ -8,8 +8,8 @@ namespace tinyml
         : learning_rate_(lr),
           epochs_(epochs),
           loss_(std::move(loss)),
-          weights_(), //TODO: figure out how to do that
-          bias_(), //TODO: figure out how to do that
+          weights_(), // TODO: figure out how to do that
+          bias_(),    // TODO: figure out how to do that
           fitted_(false)
     {
     }

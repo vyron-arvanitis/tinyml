@@ -22,7 +22,6 @@ namespace tinyml
         return m;
     }
 
-
     Matrix random_normal(std::size_t rows, std::size_t cols,
                          float mean, float stddev,
                          RNG &rng)
