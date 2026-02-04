@@ -2,9 +2,14 @@
 #include <cstddef>
 #include <vector>
 #include <stdexcept>
+#include <iosfwd>   
 
 namespace tinyml
-{
+{      
+    class Matrix;  
+
+    //Printing the matrix
+    std::ostream& operator<<(std::ostream& os, const Matrix& matrix);
     class Matrix
     {
     public:
@@ -49,7 +54,7 @@ namespace tinyml
         Matrix &operator-=(const Matrix &other); 
         Matrix operator-(const Matrix &other) const;
 
-        std::size_t len() const;
+        std::size_t size() const;
 
     private:
         // Convert (row, col) to flat index (row-major).

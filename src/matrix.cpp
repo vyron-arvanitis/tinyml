@@ -1,9 +1,28 @@
 #include "matrix.h"
 #include <cstddef>
 #include <stdexcept>
+#include <ostream>
 
 namespace tinyml
 {
+
+    // Printing the matrix
+    std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
+    {
+        for (std::size_t i = 0; i < matrix.rows(); ++i)
+        {
+            for (std::size_t j = 0; j < matrix.cols(); ++j)
+            {
+                os << matrix(i, j);
+                if (j + 1 < matrix.cols())
+                    os << ' ';
+            }
+            if (i + 1 < matrix.rows())
+                os << '\n';
+        }
+        return os;
+    }
+
     Matrix::Matrix(std::size_t rows, std::size_t cols)
         : rows_(rows), // size_t(rows), think of it like float(5) sth like htis
           cols_(cols),
@@ -175,7 +194,7 @@ namespace tinyml
         return out;
     }
 
-    std::size_t Matrix::len() const
+    std::size_t Matrix::size() const
     {
         return rows_ * cols_;
     }
