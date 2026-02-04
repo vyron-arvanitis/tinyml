@@ -11,6 +11,7 @@ add_executable(tinyml
     src/main.cpp
     src/matrix.cpp
     src/random_gen.cpp
+    src/loss.cpp
 )
 
 # Include path for headers
