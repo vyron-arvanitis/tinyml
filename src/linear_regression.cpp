@@ -15,6 +15,7 @@ namespace tinyml
     }
 
     void LinearRegression::fit(Matrix &X, Matrix &y)
+    // TODO: complete this!
     {
         for (std::size_t epoch = 0; epoch <= epochs_; epoch++)
         {
