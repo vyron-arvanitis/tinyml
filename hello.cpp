@@ -106,5 +106,13 @@ int main()
     std::cout <<"\nTesting out the float" << float(5) ;
     std::cout <<"\nTesting out the int" << int(5) ;
 
+
+    const char* L = "mse";
+    std::cout << L[0] << "\n"; // prints m
+    std::cout << L << "\n";    // prints mse
+
+    char* character = "character";
+    std::cout << character[0] << "\n"; // prints c
+    std::cout << character << "\n";    // prints character
     return 0;
 }

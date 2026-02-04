@@ -1,18 +1,13 @@
 #pragma once
 #include "matrix.h"
-
+#include "loss.h"
+#include <memory>
 namespace tinyml
 {
     class LinearRegression
     {
     public:
-        struct Options
-        {
-            float learning_rate = 0.01f;
-            std::size_t epochs = 1000;
-        };
-
-        LinearRegression(Options opts = {});
+        LinearRegression(float lr, std::size_t epochs, std::unique_ptr<Loss> loss);
 
         void fit(Matrix &X, Matrix &y);
 
@@ -24,6 +19,7 @@ namespace tinyml
     private:
         float learning_rate_;
         std::size_t epochs_;
+        std::unique_ptr<Loss> loss_;
         Matrix weights_;
         Matrix bias_;
         bool fitted_ = false;

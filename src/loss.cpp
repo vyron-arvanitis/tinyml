@@ -2,11 +2,31 @@
 #include "loss.h"
 #include <cmath>
 #include <stdexcept>
+#include <string>
 
 namespace tinyml
 {
+    using value_type = Matrix::value_type;
 
-    Loss::value_type MSELoss::operator()(const Matrix &y_hat, const Matrix &y)
+    namespace
+    {
+        std::size_t checked_elements(const Matrix &y_hat, const Matrix &y, const char *name)
+        {
+            if (y_hat.rows() != y.rows() || y_hat.cols() != y.cols())
+            {
+                throw std::invalid_argument(std::string(name) + ": shape mismatch!");
+            }
+
+            const std::size_t elements = y_hat.rows() * y_hat.cols();
+            if (elements == 0)
+            {
+                throw std::invalid_argument(std::string(name) + ": empty input");
+            }
+            return elements;
+        }
+    }
+
+    value_type MSELoss::operator()(const Matrix &y_hat, const Matrix &y)
     {
         last_y_hat_ = y_hat;
         last_y_ = y;
@@ -18,46 +38,31 @@ namespace tinyml
         return mse_grad(last_y_hat_, last_y_);
     }
 
-    Loss::value_type mse(const Matrix &y_hat, const Matrix &y)
+    value_type mse(const Matrix &y_hat, const Matrix &y)
     {
 
-        if (y_hat.rows() != y.rows() || y_hat.cols() != y.cols())
-        {
-            throw std::invalid_argument("mse: shape mismatch!");
-        }
+        const std::size_t rows = y_hat.rows();
+        const std::size_t cols = y_hat.cols();
+        const std::size_t elements = checked_elements(y_hat, y, "mse");
 
-        std::size_t elements = y_hat.rows() * y_hat.cols();
-
-        if (elements == 0)
+        value_type summ = value_type(0); // could have also been a simple `0` but this is the most robust way
+        for (std::size_t i = 0; i < rows; i++)
         {
-            throw std::invalid_argument("mse: empty input");
-        }
-        Matrix::value_type summ = Matrix::value_type(0); // could have also been a simple `0` but this is the most robust way
-        for (std::size_t i = 0; i < y_hat.rows(); i++)
-        {
-            for (std::size_t j = 0; j < y_hat.cols(); j++)
+            for (std::size_t j = 0; j < cols; j++)
             {
-                const Matrix::value_type diff = y_hat(i, j) - y(i, j);
+                const value_type diff = y_hat(i, j) - y(i, j);
 
                 summ += diff * diff;
             }
         }
-        return summ / static_cast<Matrix::value_type>(elements); // could have also been `Matrix::value_type(elements)`
+        return summ / static_cast<value_type>(elements); // could have also been `Matrix::value_type(elements)`
     }
 
     Matrix mse_grad(const Matrix &y_hat, const Matrix &y)
     {
 
-        if (y_hat.rows() != y.rows() || y_hat.cols() != y.cols())
-        {
-            throw std::invalid_argument("mse_grad: shape mismatch!");
-        }
-        std::size_t elements = y_hat.rows() * y_hat.cols();
-        if (elements == 0)
-        {
-            throw std::invalid_argument("mse_grad: empty input");
-        }
-        const Loss::value_type scale = Loss::value_type(2) / static_cast<Loss::value_type>(elements);
+        const std::size_t elements = checked_elements(y_hat, y, "mse_grad");
+        const value_type scale = value_type(2) / static_cast<value_type>(elements);
         return scale * (y_hat - y);
     }
 

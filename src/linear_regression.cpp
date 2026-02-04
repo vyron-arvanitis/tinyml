@@ -4,11 +4,12 @@
 #include "loss.h"
 namespace tinyml
 {
-    LinearRegression::LinearRegression(Options opts)
-        : learning_rate_(opts.learning_rate),
-          epochs_(opts.epochs),
-          weights_(),
-          bias_(),
+    LinearRegression::LinearRegression(float lr, std::size_t epochs, std::unique_ptr<Loss> loss)
+        : learning_rate_(lr),
+          epochs_(epochs),
+          loss_(std::move(loss)),
+          weights_(), //TODO: figure out how to do that
+          bias_(), //TODO: figure out how to do that
           fitted_(false)
     {
     }
@@ -18,6 +19,8 @@ namespace tinyml
         for (std::size_t epoch = 0; epoch <= epochs_; epoch++)
         {
             Matrix predictions = (*this).predict(X);
+            auto loss_val = (*loss_)(predictions, y);
+            Matrix dl_dyhay = loss_->backward();
         }
 
         fitted_ = true;
