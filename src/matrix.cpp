@@ -90,7 +90,7 @@ namespace tinyml
         const std::size_t n = other.cols_;
 
         Matrix out(m, n);
-
+#pragma omp parallel for
         for (std::size_t i = 0; i < m; ++i)
         {
             for (std::size_t t = 0; t < k; ++t)

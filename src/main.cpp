@@ -6,19 +6,28 @@
 #include "loss.h"
 #include "random_gen.h"
 
+#include <omp.h>
+#include <stdio.h>
+
 void example_linear_regression()
 {
-    tinyml::Matrix X(4, 1);
-    tinyml::Matrix y(4, 1);
 
-    const float x_vals[4] = {1.0f, 2.0f, 3.0f, 4.0f};
-    for (std::size_t i = 0; i < 4; ++i)
+    std::cout << "The LINEAR REGRESSION EAMPLEeeeee!!!!" << "\n";
+    std::size_t SIZE = 10;
+    tinyml::Matrix X(SIZE, 1);
+    tinyml::Matrix y(SIZE, 1);
+    tinyml::RNG rng(13);
+    std::uniform_real_distribution<float> dist(0, 100000);
+
+    for (std::size_t i = 0; i < SIZE; ++i)
     {
-        X(i, 0) = x_vals[i];
-        y(i, 0) = 2.0f * x_vals[i] + 1.0f;
+        X(i, 0) = dist(rng);
+        y(i, 0) = 2.0f * X(i, 0) + 1.0f;
+        std::cout << y(i, 0) << "\n";
+
     }
 
-    tinyml::LinearRegression model(0.01f, 500, std::make_unique<tinyml::MSELoss>());
+    tinyml::LinearRegression model(0.00000000001f, 500, std::make_unique<tinyml::MSELoss>());
     std::cout << "weights:\n"
               << model.weights().size() << "\n";
     std::cout << "bias:\n"
@@ -26,18 +35,33 @@ void example_linear_regression()
     model.fit(X, y);
 
     tinyml::Matrix preds = model.predict(X);
+    auto size_preds = preds.shape();
+    std::cout << " What is the shape of predictions" << size_preds.rows << " " << size_preds.cols << "\n";
 
-    std::cout << "Linear regression example\n";
-    std::cout << "X:\n"
-              << X << "\n";
-    std::cout << "y:\n"
-              << y << "\n";
-    std::cout << "preds:\n"
-              << preds << "\n";
-    std::cout << "weights:\n"
-              << model.weights() << "\n";
-    std::cout << "bias:\n"
-              << model.bias() << "\n";
+    // std::cout << "weights:\n"
+    //           << model.weights() << "\n";
+    // std::cout << "bias:\n"
+    //           << model.bias() << "\n";
+
+    std::cout << "first 5 rows:\n";
+    for (std::size_t i = 0; i < 5; ++i)
+    {
+        std::cout << "x=" << X(i, 0)
+                  << " y=" << y(i, 0)
+                  << " y_hat=" << preds(i, 0)
+                  << "\n";
+    }
+}
+
+void parallel_loop_ex()
+{
+
+#pragma omp parallel for // num_threads()
+    for (int i = 1; i <= 10; i++)
+    {
+        int tid = omp_get_thread_num(); // Returns current thread ID
+        printf("The thread %d  executes i = %d\n", tid, i);
+    }
 }
 
 int main()
@@ -93,6 +117,7 @@ int main()
               << matrix_add << "\n";
 
     example_linear_regression();
+    parallel_loop_ex();
 
     return 0;
 }
