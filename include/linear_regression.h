@@ -11,7 +11,7 @@ namespace tinyml
 
         void fit(const Matrix &X, const Matrix &y);
 
-        Matrix predict(Matrix &X) const;
+        Matrix predict(const Matrix &X) const;
 
         const Matrix &weights() const;
         const Matrix &bias() const;

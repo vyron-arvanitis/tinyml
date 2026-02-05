@@ -18,17 +18,17 @@ namespace tinyml
     }
 
     void LinearRegression::fit(const Matrix &X, const Matrix &y)
-    // TODO: complete this!
     {
         tinyml::RNG rng(123); // or std::random_device{}()
         weights_ = random_normal(X.cols(), y.cols(), 0, 1, rng);
         bias_ = random_normal(1, y.cols(), 0, 1, rng);
+        Matrix X_T = X.transpose();
         for (std::size_t epoch = 0; epoch < epochs_; epoch++)
         {   
             Matrix predictions = X * weights_ + bias_;
             auto loss_val = (*loss_)(predictions, y);
             Matrix dl_dy_hat = loss_->backward();  // (N, y.cols)
-            Matrix grad_w = X.transpose() * dl_dy_hat; // (F, N) *(N, y.cols)
+            Matrix grad_w = X_T * dl_dy_hat; // (F, N) *(N, y.cols)
             Matrix grad_b = Matrix::ones(1, dl_dy_hat.rows())*dl_dy_hat; 
             weights_ -= learning_rate_ * grad_w;
             bias_ -= learning_rate_ * grad_b;
@@ -37,7 +37,7 @@ namespace tinyml
         fitted_ = true;
     }
 
-    Matrix LinearRegression::predict(Matrix &X) const
+    Matrix LinearRegression::predict(const Matrix &X) const
     {
         if (!fitted_)
         {
