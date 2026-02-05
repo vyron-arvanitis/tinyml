@@ -2,6 +2,9 @@
 #include <cstddef>
 #include <stdexcept>
 #include <ostream>
+#include <iostream>
+
+#include <omp.h>
 
 namespace tinyml
 {
@@ -90,15 +93,32 @@ namespace tinyml
         const std::size_t n = other.cols_;
 
         Matrix out(m, n);
-#pragma omp parallel for
-        for (std::size_t i = 0; i < m; ++i)
+        if (m * k * n < 200000)
         {
-            for (std::size_t t = 0; t < k; ++t)
+            for (std::size_t i = 0; i < m; ++i)
             {
-                const value_type a_it = (*this)(i, t); // exactly equivalent to `this->(i,t)`
-                for (std::size_t j = 0; j < n; ++j)
+                for (std::size_t t = 0; t < k; ++t)
                 {
-                    out(i, j) += a_it * other(t, j);
+                    const value_type a_it = (*this)(i, t); // exactly equivalent to `this->(i,t)`
+                    for (std::size_t j = 0; j < n; ++j)
+                    {
+                        out(i, j) += a_it * other(t, j);
+                    }
+                }
+            }
+        }
+        else
+        {
+#pragma omp parallel for // num_threads(4)
+                for (std::size_t i = 0; i < m; ++i)
+            {
+                for (std::size_t t = 0; t < k; ++t)
+                {
+                    const value_type a_it = (*this)(i, t); // exactly equivalent to `this->(i,t)`
+                    for (std::size_t j = 0; j < n; ++j)
+                    {
+                        out(i, j) += a_it * other(t, j);
+                    }
                 }
             }
         }

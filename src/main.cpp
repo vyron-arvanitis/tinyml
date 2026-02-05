@@ -8,35 +8,62 @@
 
 #include <omp.h>
 #include <stdio.h>
+#include <chrono>
+
+using namespace std::chrono;
 
 void example_linear_regression()
 {
-
     std::cout << "The LINEAR REGRESSION EAMPLEeeeee!!!!" << "\n";
-    std::size_t SIZE = 10;
-    tinyml::Matrix X(SIZE, 1);
-    tinyml::Matrix y(SIZE, 1);
-    tinyml::RNG rng(13);
-    std::uniform_real_distribution<float> dist(0, 100000);
+    std::size_t N = 10000;
+    std::size_t F = 20;
 
-    for (std::size_t i = 0; i < SIZE; ++i)
+    tinyml::Matrix X(N, F);
+    tinyml::Matrix y(N, 1);
+
+    tinyml::RNG rng(132);
+    std::uniform_real_distribution<float> xdist(0.0f, 5.0f);
+    std::normal_distribution<float> noise(0.0f, 0.1f); 
+
+    // ground-truth weights (100x1) + bias
+    tinyml::Matrix w_true(F, 1);
+    float b_true = 1.0f;
+
+    for (std::size_t j = 0; j < F; ++j)
     {
-        X(i, 0) = dist(rng);
-        y(i, 0) = 2.0f * X(i, 0) + 1.0f;
-        std::cout << y(i, 0) << "\n";
-
+        w_true(j, 0) = 0.1f * static_cast<float>(j + 1); 
     }
 
-    tinyml::LinearRegression model(0.00000000001f, 500, std::make_unique<tinyml::MSELoss>());
+    for (std::size_t i = 0; i < N; ++i)
+    {
+        float yi = b_true;
+
+        for (std::size_t j = 0; j < F; ++j)
+        {
+            float x = xdist(rng);
+            X(i, j) = x;
+            yi += x * w_true(j, 0);
+        }
+
+        yi += noise(rng); // optional
+        y(i, 0) = yi;
+    }
+
+    tinyml::LinearRegression model(0.001f, 500, std::make_unique<tinyml::MSELoss>());
     std::cout << "weights:\n"
               << model.weights().size() << "\n";
     std::cout << "bias:\n"
               << model.bias().size() << "\n";
+    auto start = high_resolution_clock::now();
     model.fit(X, y);
+    auto stop = high_resolution_clock::now();
+    auto duration = duration_cast<microseconds>(stop - start); // microseconds
+
+    std::cout << "Runtime of program is " << duration.count() << "\n\n";
 
     tinyml::Matrix preds = model.predict(X);
     auto size_preds = preds.shape();
-    std::cout << " What is the shape of predictions" << size_preds.rows << " " << size_preds.cols << "\n";
+    std::cout << "What is the shape of predictions " << size_preds.rows << " " << size_preds.cols << "\n";
 
     // std::cout << "weights:\n"
     //           << model.weights() << "\n";
