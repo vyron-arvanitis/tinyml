@@ -12,6 +12,7 @@ add_executable(tinyml
     src/matrix.cpp
     src/random_gen.cpp
     src/loss.cpp
+    src/linear_regression.cpp
 )
 
 # Include path for headers

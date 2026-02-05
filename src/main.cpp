@@ -1,7 +1,44 @@
 #include <iostream>
 #include <cstddef>
+#include <memory>
 #include "matrix.h"
+#include "linear_regression.h"
+#include "loss.h"
 #include "random_gen.h"
+
+void example_linear_regression()
+{
+    tinyml::Matrix X(4, 1);
+    tinyml::Matrix y(4, 1);
+
+    const float x_vals[4] = {1.0f, 2.0f, 3.0f, 4.0f};
+    for (std::size_t i = 0; i < 4; ++i)
+    {
+        X(i, 0) = x_vals[i];
+        y(i, 0) = 2.0f * x_vals[i] + 1.0f;
+    }
+
+    tinyml::LinearRegression model(0.01f, 500, std::make_unique<tinyml::MSELoss>());
+    std::cout << "weights:\n"
+              << model.weights().size() << "\n";
+    std::cout << "bias:\n"
+              << model.bias().size() << "\n";
+    model.fit(X, y);
+
+    tinyml::Matrix preds = model.predict(X);
+
+    std::cout << "Linear regression example\n";
+    std::cout << "X:\n"
+              << X << "\n";
+    std::cout << "y:\n"
+              << y << "\n";
+    std::cout << "preds:\n"
+              << preds << "\n";
+    std::cout << "weights:\n"
+              << model.weights() << "\n";
+    std::cout << "bias:\n"
+              << model.bias() << "\n";
+}
 
 int main()
 {
@@ -54,6 +91,8 @@ int main()
     tinyml::Matrix matrix_sub = m_13 * 4 - 2 * m_13;
     std::cout << "The matrix_sub n is \n"
               << matrix_add << "\n";
+
+    example_linear_regression();
 
     return 0;
 }

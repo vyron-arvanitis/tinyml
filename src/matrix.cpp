@@ -5,7 +5,7 @@
 
 namespace tinyml
 {
-
+    using value_type = Matrix::value_type;
     // Printing the matrix
     std::ostream &operator<<(std::ostream &os, const Matrix &matrix)
     {
@@ -48,7 +48,7 @@ namespace tinyml
         }
     }
 
-    void Matrix::check_same_shape_(const Matrix &other) const
+    void Matrix::check_same_shape_(const Matrix &other) const // TODO: currently it is not used.....
     {
         if (rows_ != other.rows_ || cols_ != other.cols_)
         {
@@ -61,19 +61,19 @@ namespace tinyml
         (*this)(row, col) = value; // exactly equivalent to `this->operator()(i, j) = value`;
     }
 
-    Matrix::value_type Matrix::get(std::size_t row, std::size_t col) const
+    value_type Matrix::get(std::size_t row, std::size_t col) const
     {
         return (*this)(row, col);
     }
 
     // Operators that fetch data
-    Matrix::value_type &Matrix::operator()(std::size_t row, std::size_t col)
+    value_type &Matrix::operator()(std::size_t row, std::size_t col)
     {
         check_bounds_(row, col);
         return data_[index(row, col)];
     }
 
-    const Matrix::value_type &Matrix::operator()(std::size_t row, std::size_t col) const
+    const value_type &Matrix::operator()(std::size_t row, std::size_t col) const
     {
         check_bounds_(row, col);
         return data_[index(row, col)];
@@ -134,7 +134,7 @@ namespace tinyml
     }
 
     /*This defines the scalar * Matrix*/
-    Matrix operator*(Matrix::value_type scalar, const Matrix &m)
+    Matrix operator*(value_type scalar, const Matrix &m)
     {
         return m * scalar;
     }
@@ -142,15 +142,31 @@ namespace tinyml
     // Operators for Matrix addition
     Matrix &Matrix::operator+=(const Matrix &other)
     {
-        check_same_shape_(other);
-        for (std::size_t i = 0; i < rows_; ++i)
+        // check_same_shape_(other);
+        if (rows_ == other.rows_ && cols_ == other.cols_)
         {
-            for (std::size_t j = 0; j < cols_; ++j)
+            for (std::size_t i = 0; i < rows_; ++i)
             {
-                (*this)(i, j) += other(i, j);
+                for (std::size_t j = 0; j < cols_; ++j)
+                {
+                    (*this)(i, j) += other(i, j);
+                }
             }
+            return *this;
         }
-        return *this;
+        if (other.rows_ == 1 && cols_ == other.cols_)
+        {
+            for (std::size_t i = 0; i < rows_; ++i)
+            {
+                for (std::size_t j = 0; j < cols_; ++j)
+                {
+                    (*this)(i, j) += other(0, j);
+                }
+            }
+            return *this;
+        }
+
+        throw std::invalid_argument("Matrix::operator+= shape mismatch (no broadcast rule)");
     }
 
     Matrix Matrix::operator+(const Matrix &other) const
@@ -163,15 +179,34 @@ namespace tinyml
     // Operators for Matrix subtraction
     Matrix &Matrix::operator-=(const Matrix &other)
     {
-        check_same_shape_(other);
-        for (std::size_t i = 0; i < rows_; ++i)
+        // check_same_shape_(other);
+
+        // Normal matrix addition
+        if (rows_ == other.rows_ && cols_ == other.cols_)
         {
-            for (std::size_t j = 0; j < cols_; ++j)
+            for (std::size_t i = 0; i < rows_; ++i)
             {
-                (*this)(i, j) -= other(i, j);
+                for (std::size_t j = 0; j < cols_; ++j)
+                {
+                    (*this)(i, j) -= other(i, j);
+                }
             }
+            return *this;
         }
-        return *this;
+        // Broadcast matrix addition (1, y.cols)
+        if (other.rows_ == 1 && cols_ == other.cols_)
+        {
+            for (std::size_t i = 0; i < rows_; ++i)
+            {
+                for (std::size_t j = 0; j < cols_; ++j)
+                {
+                    (*this)(i, j) -= other(0, j);
+                }
+            }
+            return *this;
+        }
+
+        throw std::invalid_argument("Matrix::operator-= shape mismatch (no broadcast rule)");
     }
 
     Matrix Matrix::operator-(const Matrix &other) const
@@ -202,6 +237,15 @@ namespace tinyml
     Matrix::Shape Matrix::shape() const
     {
         return {rows_, cols_};
+    }
+
+    Matrix Matrix::ones(std::size_t rows, std::size_t cols)
+    {
+        Matrix out(rows, cols);
+        for (std::size_t i = 0; i < rows; ++i)
+            for (std::size_t j = 0; j < cols; ++j)
+                out(i, j) = value_type(1);
+        return out;
     }
 
 }

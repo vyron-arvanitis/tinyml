@@ -57,12 +57,15 @@ namespace tinyml
         Matrix &operator+=(const Matrix &other);
         Matrix operator+(const Matrix &other) const;
 
+
         Matrix &operator-=(const Matrix &other);
         Matrix operator-(const Matrix &other) const;
 
         std::size_t size() const;
 
         Shape shape() const;
+
+        static Matrix ones(std::size_t row, std::size_t col); //belongs to the class, not to any Matrix object.
 
     private:
         // Convert (row, col) to flat index (row-major).

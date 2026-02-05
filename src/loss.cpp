@@ -26,18 +26,6 @@ namespace tinyml
         }
     }
 
-    value_type MSELoss::operator()(const Matrix &y_hat, const Matrix &y)
-    {
-        last_y_hat_ = y_hat;
-        last_y_ = y;
-        return mse(y_hat, y);
-    }
-
-    Matrix MSELoss::backward()
-    {
-        return mse_grad(last_y_hat_, last_y_);
-    }
-
     value_type mse(const Matrix &y_hat, const Matrix &y)
     {
 
@@ -64,6 +52,18 @@ namespace tinyml
         const std::size_t elements = checked_elements(y_hat, y, "mse_grad");
         const value_type scale = value_type(2) / static_cast<value_type>(elements);
         return scale * (y_hat - y);
+    }
+
+    value_type MSELoss::operator()(const Matrix &y_hat, const Matrix &y)
+    {
+        last_y_hat_ = y_hat;
+        last_y_ = y;
+        return mse(y_hat, y);
+    }
+
+    Matrix MSELoss::backward()
+    {
+        return mse_grad(last_y_hat_, last_y_);
     }
 
     // float rmse(const Matrix &y_hat, const Matrix &y)

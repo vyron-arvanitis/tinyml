@@ -2,26 +2,36 @@
 #include <iostream>
 #include "linear_regression.h"
 #include "loss.h"
+#include "random_gen.h"
+#include <stdexcept>
+
 namespace tinyml
 {
     LinearRegression::LinearRegression(float lr, std::size_t epochs, std::unique_ptr<Loss> loss)
         : learning_rate_(lr),
           epochs_(epochs),
           loss_(std::move(loss)),
-          weights_(), // TODO: figure out how to do that
-          bias_(),    // TODO: figure out how to do that
+          weights_(0, 0),
+          bias_(0, 0),
           fitted_(false)
     {
     }
 
-    void LinearRegression::fit(Matrix &X, Matrix &y)
+    void LinearRegression::fit(const Matrix &X, const Matrix &y)
     // TODO: complete this!
     {
-        for (std::size_t epoch = 0; epoch <= epochs_; epoch++)
-        {
-            Matrix predictions = (*this).predict(X);
+        tinyml::RNG rng(123); // or std::random_device{}()
+        weights_ = random_normal(X.cols(), y.cols(), 0, 1, rng);
+        bias_ = random_normal(1, y.cols(), 0, 1, rng);
+        for (std::size_t epoch = 0; epoch < epochs_; epoch++)
+        {   
+            Matrix predictions = X * weights_ + bias_;
             auto loss_val = (*loss_)(predictions, y);
-            Matrix dl_dyhay = loss_->backward();
+            Matrix dl_dy_hat = loss_->backward();  // (N, y.cols)
+            Matrix grad_w = X.transpose() * dl_dy_hat; // (F, N) *(N, y.cols)
+            Matrix grad_b = Matrix::ones(1, dl_dy_hat.rows())*dl_dy_hat; 
+            weights_ -= learning_rate_ * grad_w;
+            bias_ -= learning_rate_ * grad_b;
         }
 
         fitted_ = true;
@@ -29,6 +39,21 @@ namespace tinyml
 
     Matrix LinearRegression::predict(Matrix &X) const
     {
-        return X * weights_ + bias_; // x (N_data, features) * (features, 1) + (features, 1)
+        if (!fitted_)
+        {
+            throw std::logic_error("LinearRegression::predict() called before fit()");
+        }
+
+        return X * weights_ + bias_; // x (N_data, features) * (features, y.cols) +(broadcasting!) (1, y.cols)
+    }
+
+    const Matrix &LinearRegression::weights() const
+    {
+        return weights_;
+    }
+
+    const Matrix &LinearRegression::bias() const
+    {
+        return bias_;
     }
 }

@@ -9,7 +9,7 @@ namespace tinyml
     public:
         LinearRegression(float lr, std::size_t epochs, std::unique_ptr<Loss> loss);
 
-        void fit(Matrix &X, Matrix &y);
+        void fit(const Matrix &X, const Matrix &y);
 
         Matrix predict(Matrix &X) const;
 

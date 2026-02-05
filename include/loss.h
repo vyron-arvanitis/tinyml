@@ -10,6 +10,7 @@ namespace tinyml
         using value_type = Matrix::value_type;
 
         // Virtual destructor so deleting via a Loss* calls the derived destructor.
+        Loss() : last_y_hat_(0, 0), last_y_(0, 0) {}
         virtual ~Loss() = default;
 
         // "callable" forward
@@ -20,7 +21,7 @@ namespace tinyml
 
     protected:
         Matrix last_y_hat_; // could have also been const Matrix last_y_hat = nullptr; this raises issue of lifetime!
-        Matrix last_y_; //TODO[LATER]: consider implementing the above idea later!
+        Matrix last_y_;     // TODO[LATER]: consider implementing the above idea later!
     };
 
     class MSELoss final : public Loss
