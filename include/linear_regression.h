@@ -15,6 +15,7 @@ namespace tinyml
 
         const Matrix &weights() const;
         const Matrix &bias() const;
+        const Matrix &loss_history() const;
 
     private:
         float learning_rate_;
@@ -23,5 +24,6 @@ namespace tinyml
         Matrix weights_;
         Matrix bias_;
         bool fitted_ = false;
+        Matrix loss_history_;
     };
 }

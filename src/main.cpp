@@ -78,6 +78,15 @@ void example_linear_regression()
                   << " y_hat=" << preds(i, 0)
                   << "\n";
     }
+
+    // std::cout<< "The loss history is the following: " << model.loss_history() << "\n"; # shows the whole loss hsitory is messy
+    float avg_loss = 0.0f;
+    for(std::size_t i=0; i<model.loss_history().rows(); i++){
+        avg_loss +=model.loss_history()(i,0);
+    }
+
+    avg_loss = avg_loss/ static_cast<float>(model.loss_history().rows());
+    std::cout<< "The avg loss is: " << avg_loss<< "\n";
 }
 
 void parallel_loop_ex()
