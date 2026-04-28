@@ -33,7 +33,22 @@ target_include_directories(tinyml PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
 # These flags are GCC/Clang-oriented. With MSVC you'd typically add /W4 instead.
 target_compile_options(tinyml PRIVATE -Wall -Wextra -Wpedantic)
 
+
+# -----------------------------
+# OpenMP
+# -----------------------------
+if(APPLE)
+    execute_process(
+            COMMAND brew --prefix libomp
+            OUTPUT_VARIABLE LIBOMP_PREFIX
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_PREFIX}/include")
+    set(OpenMP_CXX_LIB_NAMES "omp")
+    set(OpenMP_omp_LIBRARY "${LIBOMP_PREFIX}/lib/libomp.dylib")
+endif()
+
 find_package(OpenMP REQUIRED)
 
 target_link_libraries(tinyml PRIVATE OpenMP::OpenMP_CXX)
-
