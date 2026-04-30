@@ -7,14 +7,14 @@
 #include "random_gen.h"
 
 #include <omp.h>
-#include <stdio.h>
+#include <cstdio>
 #include <chrono>
 
 using namespace std::chrono;
 
 void example_linear_regression()
 {
-    std::cout << "The LINEAR REGRESSION EAMPLEeeeee!!!!" << "\n";
+    std::cout << "The LINEAR REGRESSION EXAMPLE!!!!" << "\n";
     std::size_t N = 10000;
     std::size_t F = 20;
 

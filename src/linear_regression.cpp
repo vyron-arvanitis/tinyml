@@ -12,9 +12,8 @@ namespace tinyml
           epochs_(epochs),
           loss_(std::move(loss)),
           weights_(0, 0),
-          bias_(0, 0),
-          fitted_(false)
-    {   
+          bias_(0, 0)
+    {
         if(!loss_){
             throw std::invalid_argument("LinearRegression: loss must not be null");
         }
