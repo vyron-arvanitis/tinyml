@@ -201,8 +201,8 @@ For the first implementation, it is fine if `Parameter` is very small. It could 
 
 ## Memory Checklist
 
-- [ ] Store tensor data in one contiguous `std::vector<double>`.
-- [ ] Store gradient data in one contiguous `std::vector<double>`.
+- [ ] Store tensor data with tempalte T
+- [ ] Store gradient data with tempalte T
 - [ ] Store `shape`, for example `[rows, cols]` or `[dim0, dim1, dim2]`.
 - [ ] Store `strides`, so N-dimensional indexes can map to flat memory.
 - [ ] Add a helper that computes flat offsets from N-dimensional indexes.
