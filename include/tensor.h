@@ -36,6 +36,8 @@ namespace tinyml {
 
         Tensor(const Shape &shape, std::vector<T> &data, bool requires_grad_);
 
+        // Return reference to underlying data (no copy).
+        // const → caller cannot modify the tensor through this access.
         const T &operator()(std::initializer_list<size_t> indices) const;
 
     private:
