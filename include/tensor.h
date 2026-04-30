@@ -36,6 +36,8 @@ namespace tinyml {
 
         Tensor(const Shape &shape, std::vector<T> &data, bool requires_grad_);
 
+        const T &operator()(std::initializer_list<size_t> indices) const;
+
     private:
         std::vector<T> data_;
         std::vector<T> grad_;
@@ -108,6 +110,10 @@ namespace tinyml {
         }
         return offset;
 
+    }
+    template<typename T>
+    const T &Tensor<T>::operator()(std::initializer_list<size_t> indices) const {
+        return data_[offset(indices)];
     }
 }
 
