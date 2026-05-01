@@ -27,6 +27,9 @@ namespace tinyml {
 
             size_t ndim() const { return dims_.size(); }
 
+            bool operator==(const Shape &other) const {
+                return dims_ == other.dims_;
+            }
             size_t operator[](const size_t i) const { return dims_[i]; }
         };
 
@@ -39,6 +42,10 @@ namespace tinyml {
         // Return reference to underlying data (no copy).
         // const → caller cannot modify the tensor through this access.
         const T &operator()(std::initializer_list<size_t> indices) const;
+
+        Tensor &operator+=(const Tensor &other);
+
+        Tensor operator+(const Tensor &other) const;
 
     private:
         std::vector<T> data_;
@@ -106,16 +113,39 @@ namespace tinyml {
     size_t Tensor<T>::offset(std::initializer_list<size_t> indices) const {
         size_t offset = 0;
         size_t dim = 0;
-        for (const auto idx_val : indices) {
-            offset+=strides_[dim] * idx_val;
+        for (const auto idx_val: indices) {
+            offset += strides_[dim] * idx_val;
             ++dim;
         }
         return offset;
-
     }
+
+    //--------------------------//
+    /*REGION DEFINING OPERATORS*/
+
     template<typename T>
     const T &Tensor<T>::operator()(std::initializer_list<size_t> indices) const {
         return data_[offset(indices)];
+    }
+
+
+    template<typename T>
+    Tensor<T> Tensor<T>::operator+=(const Tensor &other) {
+        if (shape_ != other.shape_) {
+            throw std::invalid_argument("Tensor shape mismatch");
+        }
+
+        for (size_t i = 0; i < data_.size(); ++i) {
+            data_[i] += other.data_[i];
+        }
+        return *this;
+    }
+
+    template<typename T>
+    Tensor<T> Tensor<T>::operator+(const Tensor &other) const {
+        Tensor<T> out = *this;
+        out += other;
+        return out;
     }
 }
 
