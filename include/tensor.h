@@ -30,6 +30,7 @@ namespace tinyml {
             bool operator==(const Shape &other) const {
                 return dims_ == other.dims_;
             }
+
             size_t operator[](const size_t i) const { return dims_[i]; }
         };
 
@@ -48,6 +49,7 @@ namespace tinyml {
         Tensor operator+(const Tensor &other) const;
 
         Tensor &operator-=(const Tensor &other);
+
         Tensor operator-(const Tensor &other) const;
 
     private:
@@ -133,7 +135,7 @@ namespace tinyml {
 
 
     template<typename T>
-    Tensor<T> Tensor<T>::operator+=(const Tensor &other) {
+    Tensor<T> &Tensor<T>::operator+=(const Tensor &other) {
         if (shape_ != other.shape_) {
             throw std::invalid_argument("Tensor shape mismatch");
         }
@@ -152,7 +154,7 @@ namespace tinyml {
     }
 
     template<typename T>
-    Tensor<T> Tensor<T>::operator-=(const Tensor &other) {
+    Tensor<T> &Tensor<T>::operator-=(const Tensor &other) {
         if (shape_ != other.shape_) {
             throw std::invalid_argument("Tensor shape mismatch");
         }
