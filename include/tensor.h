@@ -47,6 +47,9 @@ namespace tinyml {
 
         Tensor operator+(const Tensor &other) const;
 
+        Tensor &operator-=(const Tensor &other);
+        Tensor operator-(const Tensor &other) const;
+
     private:
         std::vector<T> data_;
         std::vector<T> grad_;
@@ -145,6 +148,25 @@ namespace tinyml {
     Tensor<T> Tensor<T>::operator+(const Tensor &other) const {
         Tensor<T> out = *this;
         out += other;
+        return out;
+    }
+
+    template<typename T>
+    Tensor<T> Tensor<T>::operator-=(const Tensor &other) {
+        if (shape_ != other.shape_) {
+            throw std::invalid_argument("Tensor shape mismatch");
+        }
+
+        for (size_t i = 0; i < data_.size(); ++i) {
+            data_[i] -= other.data_[i];
+        }
+        return *this;
+    }
+
+    template<typename T>
+    Tensor<T> Tensor<T>::operator-(const Tensor &other) const {
+        Tensor<T> out = *this;
+        out -= other;
         return out;
     }
 }
