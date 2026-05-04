@@ -72,6 +72,8 @@ namespace tinyml {
         const std::vector<T> &data() const;
 
         const std::vector<T> &grad() const;
+        std::vector<T> &data();
+        std::vector<T> &grad();
 
         void zero_grad();
 
@@ -258,6 +260,17 @@ namespace tinyml {
 
     template<typename T>
     const std::vector<T> &Tensor<T>::grad() const {
+        return grad_;
+    }
+
+    template<typename T>
+    std::vector<T>& Tensor<T>::data() {
+        return data_;
+    }
+
+
+    template<typename T>
+    std::vector<T>& Tensor<T>::grad() {
         return grad_;
     }
 
