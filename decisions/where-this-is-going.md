@@ -53,22 +53,22 @@ The important part is that the optimizer should not need to know the exact model
 
 ## Suggested Build Checklist
 
-- [ ] Create a `Tensor` or `Parameter` class.
-- [ ] Store the value/data inside the class.
-- [ ] Store the gradient inside the class.
-- [ ] Store tensor shape metadata.
+- [x] Create a `Tensor` or `Parameter` class.
+- [x] Store the value/data inside the class.
+- [x] Store the gradient inside the class.
+- [x] Store tensor shape metadata.
 - [x] General N-dimensional tensors.
-- [ ] Use contiguous row-major storage for tensor data.
-- [ ] Add indexing helpers so the rest of the code does not manually compute offsets everywhere.
-- [ ] Add `requires_grad`.
-- [ ] Add `zero_grad()`.
+- [x] Use contiguous row-major storage for tensor data.
+- [x] Add indexing helpers so the rest of the code does not manually compute offsets everywhere.
+- [x] Add `requires_grad`.
+- [x] Add `zero_grad()`.
 - [ ] Update linear regression so `w` and `b` are parameters.
-- [ ] Keep the current manual gradient formulas for now.
+- [x] Keep the current manual gradient formulas for now.
 - [ ] Write the computed `dL/dw` and `dL/db` into `w.grad` and `b.grad`.
 - [ ] Update the optimizer so it receives parameters instead of raw weights.
 - [ ] Make `optimizer.step()` update all registered parameters.
 - [ ] Make `optimizer.zero_grad()` reset all parameter gradients.
-- [ ] Keep `loss_history` as a simple vector of scalar losses.
+- [x] Keep `loss_history` as a simple vector of scalar losses.
 - [ ] Add a small test or example proving that training still reduces loss.
 
 ## Later Autograd Checklist
@@ -201,13 +201,13 @@ For the first implementation, it is fine if `Parameter` is very small. It could 
 
 ## Memory Checklist
 
-- [ ] Store tensor data with tempalte T
-- [ ] Store gradient data with tempalte T
-- [ ] Store `shape`, for example `[rows, cols]` or `[dim0, dim1, dim2]`.
-- [ ] Store `strides`, so N-dimensional indexes can map to flat memory.
-- [ ] Add a helper that computes flat offsets from N-dimensional indexes.
-- [ ] Keep row-major layout unless there is a strong reason to do otherwise.
-- [ ] Pass tensors by `const Tensor&` when reading them.
+- [x] Store tensor data with tempalte T
+- [x] Store gradient data with tempalte T
+- [x] Store `shape`, for example `[rows, cols]` or `[dim0, dim1, dim2]`.
+- [x] Store `strides`, so N-dimensional indexes can map to flat memory.
+- [x] Add a helper that computes flat offsets from N-dimensional indexes.
+- [x] Keep row-major layout unless there is a strong reason to do otherwise.
+- [x] Pass tensors by `const Tensor&` when reading them.
 - [ ] Update parameters in-place inside the optimizer.
 - [ ] Avoid unnecessary tensor copies in training loops.
 - [ ] Use OpenMP later on large contiguous loops, not tiny operations.

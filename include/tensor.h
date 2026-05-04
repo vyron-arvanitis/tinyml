@@ -5,7 +5,10 @@
 
 #ifndef TINYML_TENSOR_H
 #define TINYML_TENSOR_H
+#include <iterator>
 #include <vector>
+#include <__ranges/data.h>
+#include<algorithm>
 
 namespace tinyml {
     template<typename T>
@@ -27,6 +30,12 @@ namespace tinyml {
 
             size_t ndim() const { return dims_.size(); }
 
+            size_t numel() const {
+                size_t total = 1;
+                for (const size_t d: dims_) total *= d;
+                return total;
+            }
+
             bool operator==(const Shape &other) const {
                 return dims_ == other.dims_;
             }
@@ -36,10 +45,12 @@ namespace tinyml {
 
         explicit Tensor(const Shape &shape);
 
-        Tensor(const Shape &shape, std::vector<T> &data);
+        Tensor(const Shape &shape, const std::vector<T> &data);
 
-        Tensor(const Shape &shape, std::vector<T> &data, bool requires_grad_);
+        Tensor(const Shape &shape, const std::vector<T> &data, bool requires_grad_);
 
+        //--------------------------//
+        /*REGION DEFINING OF  OPERATORS*/
         // Return reference to underlying data (no copy).
         // const → caller cannot modify the tensor through this access.
         const T &operator()(std::initializer_list<size_t> indices) const;
@@ -56,6 +67,19 @@ namespace tinyml {
 
         Tensor operator*(const Tensor &other) const;
 
+        //--------------------------//
+        /*REGION DEFINE PUBLIC METHODS*/
+        const std::vector<T> &data() const;
+
+        const std::vector<T> &grad() const;
+
+        void zero_grad();
+
+        const Shape& shape() const;
+
+
+
+
     private:
         std::vector<T> data_;
         std::vector<T> grad_;
@@ -64,6 +88,8 @@ namespace tinyml {
         bool requires_grad_ = false;
 
         void compute_strides();
+
+        void validate_size() const;
 
         size_t offset(std::initializer_list<size_t> indices) const;
     };
@@ -84,23 +110,39 @@ namespace tinyml {
 // };
 
 
-/* Implemetnation of the temmplate class must be in the same file*/
+/* Implementation of the template class must be in the same file*/
 
 namespace tinyml {
     template<typename T>
     Tensor<T>::Tensor(const Shape &shape)
-        : shape_(shape) { compute_strides(); }
+        : data_(shape.numel(), T{}),
+          grad_(shape.numel(), T{}),
+          shape_(shape) {
+        validate_size(); //same as (*this).validate_size()
+        compute_strides();
+    }
 
     template<typename T>
-    Tensor<T>::Tensor(const Shape &shape, std::vector<T> &data)
+    Tensor<T>::Tensor(const Shape &shape, const std::vector<T> &data)
         : data_(data),
-          shape_(shape) { compute_strides(); }
+          grad_(shape.numel(), T{}),
+          shape_(shape) {
+        validate_size();
+        compute_strides();
+    }
 
     template<typename T>
-    Tensor<T>::Tensor(const Shape &shape, std::vector<T> &data, bool requires_grad_)
-        : data_(data), shape_(shape), requires_grad_(requires_grad_) { compute_strides(); }
+    Tensor<T>::Tensor(const Shape &shape, const std::vector<T> &data, const bool requires_grad_)
+        : data_(data),
+          grad_(shape.numel(), T{}),
+          shape_(shape),
+          requires_grad_(requires_grad_) {
+        validate_size();
+        compute_strides();
+    }
 
-
+    //--------------------------//
+    /*PRIVATE METHODS*/
     template<typename T>
     void Tensor<T>::compute_strides() {
         const size_t ndim = shape_.ndim();
@@ -119,6 +161,12 @@ namespace tinyml {
     }
 
     template<typename T>
+    void Tensor<T>::validate_size() const {
+        if (data_.size() != shape_.numel())
+            throw std::invalid_argument("Data size does not match Tensor shape");
+    }
+
+    template<typename T>
     size_t Tensor<T>::offset(std::initializer_list<size_t> indices) const {
         size_t offset = 0;
         size_t dim = 0;
@@ -130,7 +178,7 @@ namespace tinyml {
     }
 
     //--------------------------//
-    /*REGION DEFINING OPERATORS*/
+    /*REGION IMPLEMENTATION OF  OPERATORS*/
 
     template<typename T>
     const T &Tensor<T>::operator()(std::initializer_list<size_t> indices) const {
@@ -192,6 +240,29 @@ namespace tinyml {
         Tensor<T> out = *this;
         out *= other;
         return out;
+    }
+
+
+    //--------------------------//
+    /*REGION IMPLEMENT PUBLIC METHODS*/
+    template<typename T>
+    const std::vector<T> &Tensor<T>::data() const {
+        return data_;
+    }
+
+    template<typename T>
+    const std::vector<T> &Tensor<T>::grad() const {
+        return grad_;
+    }
+
+    template <typename T>
+    void Tensor<T>::zero_grad() {
+        std::fill(grad_.begin(), grad_.end(), T{0});
+    }
+
+    template <typename T>
+    const typename Tensor<T>::Shape &Tensor<T>::shape() const {
+        return shape_;
     }
 }
 
