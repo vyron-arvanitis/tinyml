@@ -168,9 +168,15 @@ namespace tinyml {
 
     template<typename T>
     size_t Tensor<T>::offset(std::initializer_list<size_t> indices) const {
+        if (indices.size() != shape_.ndim()) {
+            throw std::invalid_argument("Indices size does not match Tensor shape");
+        }
         size_t offset = 0;
         size_t dim = 0;
         for (const auto idx_val: indices) {
+            if (idx_val >= shape_[dim]) {
+                throw std::invalid_argument("Index out of bounds");
+            }
             offset += strides_[dim] * idx_val;
             ++dim;
         }
@@ -265,6 +271,7 @@ namespace tinyml {
         return shape_;
     }
 }
+
 
 
 #endif //TINYML_TENSOR_H
