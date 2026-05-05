@@ -43,5 +43,12 @@ TEST(TensorTest, AssignElements) {
     t({1, 1, 2}) = 40;
     EXPECT_EQ(t({0, 0, 0}), 5);
     EXPECT_EQ(t({1, 1, 2}), 40);
+}
 
-    }
+TEST(TensorTest, EqualityOfTensors) {
+    Tensor<double> a({3}, {1.0, 2.0, 3.0});
+    Tensor<double> b({3}, {2.0, 2.0, 3.0});
+    Tensor<double> c({1, 3}, {1.0, 2.0, 3.0});
+    EXPECT_NE(a, b);
+    EXPECT_NE(a, c);
+}
