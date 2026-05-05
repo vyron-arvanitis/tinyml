@@ -5,9 +5,7 @@
 
 #ifndef TINYML_TENSOR_H
 #define TINYML_TENSOR_H
-#include <iterator>
 #include <vector>
-#include <__ranges/data.h>
 #include<algorithm>
 
 namespace tinyml {
@@ -40,6 +38,11 @@ namespace tinyml {
                 return dims_ == other.dims_;
             }
 
+            bool operator!=(const Shape &other) const {
+                // return dims_ != other.dims_;
+                return !(*this == other);
+            }
+
             size_t operator[](const size_t i) const { return dims_[i]; }
         };
 
@@ -54,6 +57,10 @@ namespace tinyml {
         // Return reference to underlying data (no copy).
         // const → caller cannot modify the tensor through this access.
         const T &operator()(std::initializer_list<size_t> indices) const;
+
+        T &operator()(std::initializer_list<size_t> indices);
+
+        bool operator==(const Tensor &other) const;
 
         Tensor &operator+=(const Tensor &other);
 
@@ -103,6 +110,10 @@ namespace tinyml {
         void zero_grad();
 
         const Shape &shape() const;
+
+        T sum() const;
+
+        T mean() const;
 
     private:
         std::vector<T> data_;
@@ -305,6 +316,16 @@ namespace tinyml {
         return data_[offset(indices)];
     }
 
+    template<typename T>
+    T &Tensor<T>::operator()(std::initializer_list<size_t> indices) {
+        return data_[offset(indices)];
+    }
+
+    template<typename T>
+    bool Tensor<T>::operator==(const Tensor &other) const {
+        return shape_ == other.shape_ && data_ == other.data_;
+    }
+
 
     template<typename T>
     Tensor<T> &Tensor<T>::operator+=(const Tensor &other) {
@@ -412,6 +433,19 @@ namespace tinyml {
     template<typename T>
     const typename Tensor<T>::Shape &Tensor<T>::shape() const {
         return shape_;
+    }
+
+    template<typename T>
+    T Tensor<T>::sum() const {
+        T sum = T{};
+        for (const auto &x: data_) sum += x;
+
+        return sum;
+    }
+
+    template<typename T>
+    T Tensor<T>::mean() const {
+        return this->sum() / static_cast<T>(shape_.numel());
     }
 }
 
