@@ -14,11 +14,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)              # prefer -std=c++20 over gnu++20
 # Build target: main executable
 # -----------------------------
 add_executable(tinyml
-    src/main.cpp
-    src/matrix.cpp
-    src/random_gen.cpp
-    src/loss.cpp
-    src/linear_regression.cpp
+        src/main.cpp
+        src/matrix.cpp
+        src/random_gen.cpp
+        src/loss.cpp
+        src/linear_regression.cpp
 )
 
 # -----------------------------
@@ -37,7 +37,7 @@ target_compile_options(tinyml PRIVATE -Wall -Wextra -Wpedantic)
 # -----------------------------
 # OpenMP
 # -----------------------------
-if(APPLE)
+if (APPLE)
     execute_process(
             COMMAND brew --prefix libomp
             OUTPUT_VARIABLE LIBOMP_PREFIX
@@ -47,8 +47,31 @@ if(APPLE)
     set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_PREFIX}/include")
     set(OpenMP_CXX_LIB_NAMES "omp")
     set(OpenMP_omp_LIBRARY "${LIBOMP_PREFIX}/lib/libomp.dylib")
-endif()
+endif ()
 
 find_package(OpenMP REQUIRED)
 
 target_link_libraries(tinyml PRIVATE OpenMP::OpenMP_CXX)
+
+# -----------------------------
+# Tests
+# -----------------------------
+find_package(GTest REQUIRED)
+
+enable_testing()
+
+add_executable(tinyml_tests
+        tests/tensor.cpp
+)
+
+target_include_directories(tinyml_tests PRIVATE
+        ${CMAKE_CURRENT_SOURCE_DIR}/include
+)
+
+target_link_libraries(tinyml_tests PRIVATE
+        GTest::gtest_main
+)
+
+include(GoogleTest)
+gtest_discover_tests(tinyml_tests)
+
