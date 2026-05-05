@@ -21,6 +21,51 @@ TEST(TensorTest, ConstructsWithShape) {
     EXPECT_EQ(t.data().size(), 6);
 }
 
+TEST(TensorTest, ShapeStoresDimensions) {
+    Tensor<double>::Shape shape{2, 3, 4};
+    Tensor<double>::Shape same_shape{2, 3, 4};
+    Tensor<double>::Shape different_shape{2, 4, 3};
+
+    EXPECT_EQ(shape.ndim(), 3);
+    EXPECT_EQ(shape.numel(), 24);
+    EXPECT_EQ(shape[0], 2);
+    EXPECT_EQ(shape[1], 3);
+    EXPECT_EQ(shape[2], 4);
+    EXPECT_EQ(shape, same_shape);
+    EXPECT_NE(shape, different_shape);
+}
+
+TEST(TensorTest, ExposesMutableData) {
+    Tensor<double> t({3}, {1.0, 2.0, 3.0});
+
+    t.data()[1] = 20.0;
+
+    EXPECT_EQ(t.data(), std::vector<double>({1.0, 20.0, 3.0}));
+}
+
+TEST(TensorTest, InitializesAndClearsGrad) {
+    Tensor<double> t({3}, {1.0, 2.0, 3.0});
+
+    EXPECT_EQ(t.grad(), std::vector<double>({0.0, 0.0, 0.0}));
+
+    t.grad()[0] = 1.0;
+    t.grad()[1] = 2.0;
+    t.grad()[2] = 3.0;
+
+    EXPECT_EQ(t.grad(), std::vector<double>({1.0, 2.0, 3.0}));
+
+    t.zero_grad();
+
+    EXPECT_EQ(t.grad(), std::vector<double>({0.0, 0.0, 0.0}));
+}
+
+TEST(TensorTest, ComputesSumAndMean) {
+    Tensor<double> t({2, 3}, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+
+    EXPECT_DOUBLE_EQ(t.sum(), 21.0);
+    EXPECT_DOUBLE_EQ(t.mean(), 3.5);
+}
+
 TEST(TensorTest, AccessElements) {
     const std::vector<int> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
     Tensor<int> t({2, 2, 3}, data);
@@ -179,4 +224,57 @@ TEST_F(TensorOpsTest, DivideAssignsScalar) {
     a /= 2.0;
 
     EXPECT_EQ(a.data(), std::vector<double>({0.5, 1.0, 1.5}));
+}
+
+TEST(TensorErrorTest, ThrowsWhenDataSizeDoesNotMatchShape) {
+    EXPECT_THROW(
+        Tensor<double> t({2, 3}, {1.0, 2.0, 3.0}),
+        std::invalid_argument
+    );
+}
+
+TEST(TensorErrorTest, ThrowsWhenIndexDimensionCountDoesNotMatchShape) {
+    Tensor<double> t({2, 3}, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+
+    EXPECT_THROW(t({0}), std::invalid_argument);
+    EXPECT_THROW(t({0, 1, 2}), std::invalid_argument);
+}
+
+TEST(TensorErrorTest, ThrowsWhenIndexIsOutOfBounds) {
+    Tensor<double> t({2, 3}, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+
+    EXPECT_THROW(t({2, 0}), std::invalid_argument);
+    EXPECT_THROW(t({0, 3}), std::invalid_argument);
+}
+
+TEST(TensorErrorTest, ThrowsWhenAddingDifferentShapes) {
+    Tensor<double> a({3}, {1.0, 2.0, 3.0});
+    Tensor<double> b({1, 3}, {1.0, 2.0, 3.0});
+
+    EXPECT_THROW(a + b, std::invalid_argument);
+    EXPECT_THROW(a += b, std::invalid_argument);
+}
+
+TEST(TensorErrorTest, ThrowsWhenSubtractingDifferentShapes) {
+    Tensor<double> a({3}, {1.0, 2.0, 3.0});
+    Tensor<double> b({1, 3}, {1.0, 2.0, 3.0});
+
+    EXPECT_THROW(a - b, std::invalid_argument);
+    EXPECT_THROW(a -= b, std::invalid_argument);
+}
+
+TEST(TensorErrorTest, ThrowsWhenMultiplyingDifferentShapes) {
+    Tensor<double> a({3}, {1.0, 2.0, 3.0});
+    Tensor<double> b({1, 3}, {1.0, 2.0, 3.0});
+
+    EXPECT_THROW(a * b, std::invalid_argument);
+    EXPECT_THROW(a *= b, std::invalid_argument);
+}
+
+TEST(TensorErrorTest, ThrowsWhenDividingDifferentShapes) {
+    Tensor<double> a({3}, {1.0, 2.0, 3.0});
+    Tensor<double> b({1, 3}, {1.0, 2.0, 3.0});
+
+    EXPECT_THROW(a / b, std::invalid_argument);
+    EXPECT_THROW(a /= b, std::invalid_argument);
 }
