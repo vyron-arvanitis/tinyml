@@ -65,3 +65,12 @@ TEST(TensorTest, AddAssignsTwoTensors) {
     EXPECT_EQ(a.data(), std::vector<double>({5.0, 7.0, 9.0}));
     EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
 }
+
+TEST(TensorTest, SubtractsTwoTensors) {
+    Tensor<double> a({3}, {1.0, 2.0, 3.0});
+    Tensor<double> b({3}, {4.0, 5.0, 6.0});
+
+    Tensor<double> c = a - b;
+    EXPECT_EQ(c.data(), std::vector<double>({-3.0, -3.0, -3.0}));
+
+}
