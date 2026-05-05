@@ -50,7 +50,7 @@ namespace tinyml {
         Tensor(const Shape &shape, const std::vector<T> &data, bool requires_grad_);
 
         //--------------------------//
-        /*REGION DEFINING OF  OPERATORS*/
+        /*REGION DEFINING OF OPERATORS BETWEEN TENSORS*/
         // Return reference to underlying data (no copy).
         // const → caller cannot modify the tensor through this access.
         const T &operator()(std::initializer_list<size_t> indices) const;
@@ -68,19 +68,32 @@ namespace tinyml {
         Tensor operator*(const Tensor &other) const;
 
         //--------------------------//
+        /*REGION DEFINING OF OPERATORS BETWEEN TENSORS AND SCALARS*/
+        Tensor &operator+=(const T &scalar);
+
+        Tensor operator+(const T &scalar) const;
+
+        Tensor &operator-=(const T &scalar);
+
+        Tensor operator-(const T &scalar) const;
+
+        Tensor &operator*=(const T &scalar);
+
+        Tensor operator*(const T &scalar) const;
+
+        //--------------------------//
         /*REGION DEFINE PUBLIC METHODS*/
         const std::vector<T> &data() const;
 
         const std::vector<T> &grad() const;
+
         std::vector<T> &data();
+
         std::vector<T> &grad();
 
         void zero_grad();
 
-        const Shape& shape() const;
-
-
-
+        const Shape &shape() const;
 
     private:
         std::vector<T> data_;
@@ -95,6 +108,15 @@ namespace tinyml {
 
         size_t offset(std::initializer_list<size_t> indices) const;
     };
+
+    template<typename T>
+    Tensor<T> operator+(const T &scalar, const Tensor<T> &other);
+
+    template<typename T>
+    Tensor<T> operator-(const T &scalar, const Tensor<T> &other);
+
+    template<typename T>
+    Tensor<T> operator*(const T &scalar, const Tensor<T> &other);
 }
 
 // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! IDEA TO MAYBE USE LATER !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
@@ -186,7 +208,73 @@ namespace tinyml {
     }
 
     //--------------------------//
-    /*REGION IMPLEMENTATION OF  OPERATORS*/
+    /*REGION IMPLEMENTATION OF OPERATORS BETWEEN TENSORS*/
+
+    template<typename T>
+    Tensor<T> &Tensor<T>::operator+=(const T &scalar) {
+        for (size_t i = 0; i < data_.size(); i++) {
+            data_[i] += scalar;
+        }
+        return *this;
+    }
+
+    template<typename T>
+    Tensor<T> Tensor<T>::operator+(const T &scalar) const {
+        Tensor<T> out = *this;
+        out += scalar;
+        return out;
+    }
+
+    template<typename T>
+    Tensor<T> operator+(const T &scalar, const Tensor<T> &other) {
+        return other + scalar;
+    }
+
+    template<typename T>
+    Tensor<T> &Tensor<T>::operator-=(const T &scalar) {
+        for (size_t i = 0; i < data_.size(); i++) {
+            data_[i] -= scalar;
+        }
+        return *this;
+    }
+
+    template<typename T>
+    Tensor<T> Tensor<T>::operator-(const T &scalar) const {
+        Tensor<T> out = *this;
+        out -= scalar;
+        return out;
+    }
+
+    template<typename T>
+    Tensor<T> operator-(const T &scalar, const Tensor<T> &other) {
+        Tensor<T> out = other;
+
+        for (auto &data: out.data()) {
+            data = scalar - data;
+        }
+
+        return out;
+    }
+
+    template<typename T>
+    Tensor<T> &Tensor<T>::operator*=(const T &scalar) {
+        for (size_t i = 0; i < data_.size(); i++) {
+            data_[i] *= scalar;
+        }
+        return *this;
+    }
+
+    template<typename T>
+    Tensor<T> Tensor<T>::operator*(const T &scalar) const {
+        Tensor<T> out = *this;
+        out *= scalar;
+        return out;
+    }
+
+    template<typename T>
+    Tensor<T> operator*(const T &scalar, const Tensor<T> &other) {
+        return other * scalar;
+    }
 
     template<typename T>
     const T &Tensor<T>::operator()(std::initializer_list<size_t> indices) const {
@@ -264,27 +352,26 @@ namespace tinyml {
     }
 
     template<typename T>
-    std::vector<T>& Tensor<T>::data() {
+    std::vector<T> &Tensor<T>::data() {
         return data_;
     }
 
 
     template<typename T>
-    std::vector<T>& Tensor<T>::grad() {
+    std::vector<T> &Tensor<T>::grad() {
         return grad_;
     }
 
-    template <typename T>
+    template<typename T>
     void Tensor<T>::zero_grad() {
         std::fill(grad_.begin(), grad_.end(), T{0});
     }
 
-    template <typename T>
+    template<typename T>
     const typename Tensor<T>::Shape &Tensor<T>::shape() const {
         return shape_;
     }
 }
-
 
 
 #endif //TINYML_TENSOR_H

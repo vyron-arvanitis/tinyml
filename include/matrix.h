@@ -4,19 +4,17 @@
 #include <stdexcept>
 #include <iosfwd>
 
-namespace tinyml
-{
+namespace tinyml {
     class Matrix; // forward declaration (promises Matrix exists later)
 
     // Printing the matrix
     std::ostream &operator<<(std::ostream &os, const Matrix &matrix);
-    class Matrix
-    {
+
+    class Matrix {
     public:
         using value_type = float;
 
-        struct Shape
-        {
+        struct Shape {
             std::size_t rows;
             std::size_t cols;
         };
@@ -51,14 +49,16 @@ namespace tinyml
         Matrix transpose() const;
 
         Matrix operator*(const Matrix &other) const; // Matrix * Matrix
-        Matrix &operator*=(value_type scalar);       // Matrix* scaler returns mutated object
-        Matrix operator*(value_type scalar) const;   // Matrix* scaler returns new object
+        Matrix &operator*=(value_type scalar); // Matrix* scaler returns mutated object
+        Matrix operator*(value_type scalar) const; // Matrix* scaler returns new object
 
         Matrix &operator+=(const Matrix &other);
+
         Matrix operator+(const Matrix &other) const;
 
 
         Matrix &operator-=(const Matrix &other);
+
         Matrix operator-(const Matrix &other) const;
 
         std::size_t size() const;
@@ -75,6 +75,7 @@ namespace tinyml
         Matrix mat_mul_(const Matrix &other) const;
 
         void check_bounds_(std::size_t row, std::size_t col) const;
+
         void check_same_shape_(const Matrix &other) const;
 
         std::size_t rows_;
