@@ -30,9 +30,18 @@ TEST(TensorTest, AccessElements) {
     for (size_t i = 0; i < 2; i++) {
         for (size_t j = 0; j < 2; j++) {
             for (size_t k = 0; k < 3; k++) {
-                const size_t idx = i * 2*3 + j *3 + k ;
+                const size_t idx = i * 2 * 3 + j * 3 + k;
                 EXPECT_EQ(t({i, j, k}), data[idx]);
             }
         }
     }
 }
+
+TEST(TensorTest, AssignElements) {
+    Tensor<size_t> t({2, 2, 3}, {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12});
+    t({0, 0, 0}) = 5;
+    t({1, 1, 2}) = 40;
+    EXPECT_EQ(t({0, 0, 0}), 5);
+    EXPECT_EQ(t({1, 1, 2}), 40);
+
+    }
