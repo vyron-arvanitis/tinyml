@@ -85,3 +85,8 @@ TEST_F(TensorOpsTest, SubtractAssignsTwoTensors) {
     EXPECT_EQ(a.data(), std::vector<double>({-3.0, -3.0, -3.0}));
     EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
 }
+
+TEST_F(TensorOpsTest, MultiplysTwoTensors) {
+    Tensor<double> c = a * b;
+    EXPECT_EQ(c.data(), std::vector<double>({4.0, 10.0, 18.0}));
+}
