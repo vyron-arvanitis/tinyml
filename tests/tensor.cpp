@@ -96,3 +96,14 @@ TEST_F(TensorOpsTest, MultiplyAssignsTwoTensors) {
     EXPECT_EQ(a.data(), std::vector<double>({4.0, 10.0, 18.0}));
     EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
 }
+
+TEST_F(TensorOpsTest, DividesTwoTensors) {
+    Tensor<double> c = a / b;
+    EXPECT_EQ(c.data(), std::vector<double>({1.0/4.0, 2.0/5.0, 0.5}));
+}
+
+TEST_F(TensorOpsTest, DividesAssignsTwoTensors) {
+    a /= b;
+    EXPECT_EQ(a.data(), std::vector<double>({1.0/4.0, 2.0/5.0, 0.5}));
+    EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
+}
