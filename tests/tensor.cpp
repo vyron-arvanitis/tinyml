@@ -49,9 +49,11 @@ TEST(TensorTest, EqualityOfTensors) {
     Tensor<double> a({3}, {1.0, 2.0, 3.0});
     Tensor<double> b({3}, {2.0, 2.0, 3.0});
     Tensor<double> c({1, 3}, {1.0, 2.0, 3.0});
+    Tensor<double> d({1, 3}, {1.0, 2.0, 3.0});
 
     EXPECT_NE(a, b);
     EXPECT_NE(a, c);
+    EXPECT_EQ(c, d);
 }
 
 TEST_F(TensorOpsTest, AddsTwoTensors) {
