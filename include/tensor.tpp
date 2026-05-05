@@ -81,6 +81,11 @@ namespace tinyml {
 
         Tensor operator*(const T &scalar) const;
 
+        Tensor &operator/=(const T &scalar);
+
+        Tensor operator/(const T &scalar) const;
+
+
         //--------------------------//
         /*REGION DEFINE PUBLIC METHODS*/
         const std::vector<T> &data() const;
@@ -274,6 +279,21 @@ namespace tinyml {
     template<typename T>
     Tensor<T> operator*(const T &scalar, const Tensor<T> &other) {
         return other * scalar;
+    }
+
+    template<typename T>
+    Tensor<T> &Tensor<T>::operator/=(const T &scalar) {
+        for (size_t i = 0; i < data_.size(); i++) {
+            data_[i] /= scalar;
+        }
+        return *this;
+    }
+
+    template<typename T>
+    Tensor<T> Tensor<T>::operator/(const T &scalar) const {
+        Tensor<T> out = *this;
+        out /= scalar;
+        return out;
     }
 
     template<typename T>
