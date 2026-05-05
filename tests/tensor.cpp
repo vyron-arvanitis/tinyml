@@ -107,3 +107,76 @@ TEST_F(TensorOpsTest, DividesAssignsTwoTensors) {
     EXPECT_EQ(a.data(), std::vector<double>({1.0/4.0, 2.0/5.0, 0.5}));
     EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
 }
+
+TEST_F(TensorOpsTest, AddsTensorAndScalar) {
+    Tensor<double> c = a + 2.0;
+
+    EXPECT_EQ(c.data(), std::vector<double>({3.0, 4.0, 5.0}));
+    EXPECT_EQ(a.data(), std::vector<double>({1.0, 2.0, 3.0}));
+}
+
+TEST_F(TensorOpsTest, AddsScalarAndTensor) {
+    Tensor<double> c = 2.0 + a;
+
+    EXPECT_EQ(c.data(), std::vector<double>({3.0, 4.0, 5.0}));
+    EXPECT_EQ(a.data(), std::vector<double>({1.0, 2.0, 3.0}));
+}
+
+TEST_F(TensorOpsTest, AddAssignsScalar) {
+    a += 2.0;
+
+    EXPECT_EQ(a.data(), std::vector<double>({3.0, 4.0, 5.0}));
+}
+
+TEST_F(TensorOpsTest, SubtractsScalarFromTensor) {
+    Tensor<double> c = a - 2.0;
+
+    EXPECT_EQ(c.data(), std::vector<double>({-1.0, 0.0, 1.0}));
+    EXPECT_EQ(a.data(), std::vector<double>({1.0, 2.0, 3.0}));
+}
+
+TEST_F(TensorOpsTest, SubtractsTensorFromScalar) {
+    Tensor<double> c = 10.0 - a;
+
+    EXPECT_EQ(c.data(), std::vector<double>({9.0, 8.0, 7.0}));
+    EXPECT_EQ(a.data(), std::vector<double>({1.0, 2.0, 3.0}));
+}
+
+TEST_F(TensorOpsTest, SubtractAssignsScalar) {
+    a -= 2.0;
+
+    EXPECT_EQ(a.data(), std::vector<double>({-1.0, 0.0, 1.0}));
+}
+
+TEST_F(TensorOpsTest, MultipliesTensorAndScalar) {
+    Tensor<double> c = a * 2.0;
+
+    EXPECT_EQ(c.data(), std::vector<double>({2.0, 4.0, 6.0}));
+    EXPECT_EQ(a.data(), std::vector<double>({1.0, 2.0, 3.0}));
+}
+
+TEST_F(TensorOpsTest, MultipliesScalarAndTensor) {
+    Tensor<double> c = 2.0 * a;
+
+    EXPECT_EQ(c.data(), std::vector<double>({2.0, 4.0, 6.0}));
+    EXPECT_EQ(a.data(), std::vector<double>({1.0, 2.0, 3.0}));
+}
+
+TEST_F(TensorOpsTest, MultiplyAssignsScalar) {
+    a *= 2.0;
+
+    EXPECT_EQ(a.data(), std::vector<double>({2.0, 4.0, 6.0}));
+}
+
+TEST_F(TensorOpsTest, DividesTensorByScalar) {
+    Tensor<double> c = a / 2.0;
+
+    EXPECT_EQ(c.data(), std::vector<double>({0.5, 1.0, 1.5}));
+    EXPECT_EQ(a.data(), std::vector<double>({1.0, 2.0, 3.0}));
+}
+
+TEST_F(TensorOpsTest, DivideAssignsScalar) {
+    a /= 2.0;
+
+    EXPECT_EQ(a.data(), std::vector<double>({0.5, 1.0, 1.5}));
+}
