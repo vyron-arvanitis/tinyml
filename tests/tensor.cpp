@@ -23,3 +23,16 @@ TEST(TensorTest, AddsTwoTensors) {
 
     EXPECT_EQ(c.data(), std::vector<double>({5.0, 7.0, 9.0}));
 }
+
+TEST(TensorTest, AccessElements) {
+    const std::vector<int> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+    Tensor<int> t({2, 2, 3}, data);
+    for (size_t i = 0; i < 2; i++) {
+        for (size_t j = 0; j < 2; j++) {
+            for (size_t k = 0; k < 3; k++) {
+                const size_t idx = i * 2*3 + j *3 + k ;
+                EXPECT_EQ(t({i, j, k}), data[idx]);
+            }
+        }
+    }
+}
