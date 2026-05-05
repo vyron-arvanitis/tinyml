@@ -15,26 +15,6 @@ TEST(TensorTest, ConstructsWithShape) {
     EXPECT_EQ(t.data().size(), 6);
 }
 
-TEST(TensorTest, AddsTwoTensors) {
-    Tensor<double> a({3}, {1.0, 2.0, 3.0});
-    Tensor<double> b({3}, {4.0, 5.0, 6.0});
-
-    Tensor<double> c = a + b;
-
-    EXPECT_EQ(c.data(), std::vector<double>({5.0, 7.0, 9.0}));
-    EXPECT_EQ(a.data(), std::vector<double>({1.0, 2.0, 3.0}));
-    EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
-}
-
-TEST(TensorTest, AddAssignsTwoTensors) {
-    Tensor<double> a({3}, {1.0, 2.0, 3.0});
-    Tensor<double> b({3}, {4.0, 5.0, 6.0});
-
-    a += b;
-
-    EXPECT_EQ(a.data(), std::vector<double>({5.0, 7.0, 9.0}));
-    EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
-}
 
 TEST(TensorTest, AccessElements) {
     const std::vector<int> data = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
@@ -63,4 +43,25 @@ TEST(TensorTest, EqualityOfTensors) {
     Tensor<double> c({1, 3}, {1.0, 2.0, 3.0});
     EXPECT_NE(a, b);
     EXPECT_NE(a, c);
+}
+
+TEST(TensorTest, AddsTwoTensors) {
+    Tensor<double> a({3}, {1.0, 2.0, 3.0});
+    Tensor<double> b({3}, {4.0, 5.0, 6.0});
+
+    Tensor<double> c = a + b;
+
+    EXPECT_EQ(c.data(), std::vector<double>({5.0, 7.0, 9.0}));
+    EXPECT_EQ(a.data(), std::vector<double>({1.0, 2.0, 3.0}));
+    EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
+}
+
+TEST(TensorTest, AddAssignsTwoTensors) {
+    Tensor<double> a({3}, {1.0, 2.0, 3.0});
+    Tensor<double> b({3}, {4.0, 5.0, 6.0});
+
+    a += b;
+
+    EXPECT_EQ(a.data(), std::vector<double>({5.0, 7.0, 9.0}));
+    EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
 }
