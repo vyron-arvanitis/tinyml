@@ -44,6 +44,27 @@ namespace tinyml {
             }
 
             size_t operator[](const size_t i) const { return dims_[i]; }
+
+            Shape broadcast(const Shape &a, const Shape &b) {
+                size_t ndim = std::max(a.ndim(), b.ndim());
+
+                std::vector<size_t> result(ndim);
+                for (size_t i = 0; i < ndim; ++i) {
+                    size_t a_dim = (i < ndim - a.ndim()) ? 1 : a.dims_[i - ndim - a.ndim()];
+                    size_t b_dim = (i < ndim - b.ndim()) ? 1 : b.dims_[i - ndim - b.ndim()];
+
+                    if (a_dim == b_dim) {
+                        result[i] = a_dim;
+                    } else if (a_dim == 1) {
+                        result[i] = b_dim;
+                    } else if (b_dim == 1) {
+                        result[i] = a_dim;
+                    } else {
+                        throw std::invalid_argument("Shapes are not broadcastable");
+                    }
+                }
+                return Shape(result);
+            }
         };
 
         explicit Tensor(const Shape &shape);
