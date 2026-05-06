@@ -45,7 +45,7 @@ namespace tinyml {
 
             size_t operator[](const size_t i) const { return dims_[i]; }
 
-            Shape broadcast(const Shape &a, const Shape &b) {
+            Shape broadcast_shape(const Shape &a, const Shape &b) {
                 size_t ndim = std::max(a.ndim(), b.ndim());
 
                 std::vector<size_t> result(ndim);
