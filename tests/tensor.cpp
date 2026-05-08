@@ -78,6 +78,8 @@ TEST(TensorTest, AccessElements) {
             }
         }
     }
+    std::vector<size_t> index = {0, 0, 0};
+    EXPECT_EQ(t({0,0,0,}), t(index));
 }
 
 TEST(TensorTest, AssignElements) {
