@@ -81,6 +81,10 @@ namespace tinyml {
 
         T &operator()(std::initializer_list<size_t> indices);
 
+        const T &operator()(const std::vector<size_t>& indices) const;
+
+        T &operator()(const std::vector<size_t>& indices);
+
         bool operator==(const Tensor &other) const;
 
         Tensor &operator+=(const Tensor &other);
@@ -148,6 +152,8 @@ namespace tinyml {
         void validate_size() const;
 
         size_t offset(std::initializer_list<size_t> indices) const;
+
+        size_t offset(const std::vector<size_t> &indices) const;
     };
 
     template<typename T>
@@ -244,6 +250,24 @@ namespace tinyml {
             }
             offset += strides_[dim] * idx_val;
             ++dim;
+        }
+        return offset;
+    }
+
+    template<typename T>
+    size_t Tensor<T>::offset(const std::vector<size_t> &indices) const {
+        if (indices.size() != shape_.ndim()) {
+            throw std::invalid_argument("Indices size does not match Tensor shape");
+        }
+        size_t offset = 0;
+        for (size_t dim = 0; dim < indices.size(); ++dim) {
+            size_t idx_val = indices[dim];
+
+            if (idx_val >= shape_[dim]) {
+                throw std::invalid_argument("Index out of bounds");
+            }
+
+            offset += strides_[dim] * idx_val;
         }
         return offset;
     }
@@ -347,6 +371,15 @@ namespace tinyml {
         return shape_ == other.shape_ && data_ == other.data_;
     }
 
+    template<typename T>
+    const T &Tensor<T>::operator()(const std::vector<size_t>& indices) const {
+        return data_[offset(indices)];
+    }
+
+    template<typename T>
+    T &Tensor<T>::operator()(const std::vector<size_t>& indices) {
+        return data_[offset(indices)];
+    }
 
     template<typename T>
     Tensor<T> &Tensor<T>::operator+=(const Tensor &other) {
