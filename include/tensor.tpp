@@ -193,6 +193,7 @@ namespace tinyml {
 
         size_t offset(const std::vector<size_t> &indices) const;
 
+        // Converts a flat row-major storage index back into a multi-dimensional index.
         Shape unravel_index(size_t flat_index, const Shape &shape);
     };
 
