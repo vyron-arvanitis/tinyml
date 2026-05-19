@@ -20,10 +20,37 @@ namespace tinyml {
             // so `Shape s;` and default-initialization of members (e.g., in Tensor) would fail.
             Shape() = default;
 
-            // Enables brace-initialization: Shape s{2,3,4};
+            // Enables brace-initialization:
+            //
+            //     Shape s{2, 3, 4};
+            //
+            // std::initializer_list is used specifically for brace syntax.
             // The values are passed as std::initializer_list and copied into dims
             Shape(const std::initializer_list<size_t> dims)
                 : dims_(dims) {
+            }
+
+            // Common modern C++ idiom:
+            //
+            // Accept by value, then move into the member.
+            //
+            // If caller passes a lvalue:
+            //     std::vector<size_t> v{2,3,4};
+            //     Shape s(v);
+            // one copy happens into the parameter.
+            //
+            // If caller passes a temporary/rvalue:
+            //     Shape s(std::vector<size_t>{2,3,4});
+            // the vector can be moved efficiently.
+            //
+            // std::move transfers the vector's internal buffer into dims_
+            // instead of copying all elements.
+            //
+            // explicit prevents accidental automatic conversions:
+            //     Shape s = std::vector<size_t>{2,3,4}; // ERROR
+            //     Shape s(std::vector<size_t>{2,3,4});  // OK
+            explicit Shape(std::vector<size_t> dims)
+                : dims_(std::move(dims)) {
             }
 
             size_t ndim() const { return dims_.size(); }
@@ -50,8 +77,8 @@ namespace tinyml {
 
                 std::vector<size_t> result(ndim);
                 for (size_t i = 0; i < ndim; ++i) {
-                    size_t a_dim = (i < ndim - a.ndim()) ? 1 : a.dims_[i - ndim - a.ndim()];
-                    size_t b_dim = (i < ndim - b.ndim()) ? 1 : b.dims_[i - ndim - b.ndim()];
+                    size_t a_dim = (i < ndim - a.ndim()) ? 1 : a.dims_[i - (ndim - a.ndim())];
+                    size_t b_dim = (i < ndim - b.ndim()) ? 1 : b.dims_[i - (ndim - b.ndim())];
 
                     if (a_dim == b_dim) {
                         result[i] = a_dim;
@@ -65,6 +92,14 @@ namespace tinyml {
                 }
                 return Shape(result);
             }
+            // std::vector<size_t> broadcast_index(
+            //       std::initializer_list<size_t> out_index,
+            //       const Shape &input_shape,
+            //       const Shape &output_shape) {
+            //
+            //     std::vector<size_t> result;
+            //     return result;
+            // }
         };
 
         explicit Tensor(const Shape &shape);
