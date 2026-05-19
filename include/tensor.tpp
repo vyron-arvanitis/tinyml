@@ -92,6 +92,7 @@ namespace tinyml {
                 }
                 return Shape(result);
             }
+
             // std::vector<size_t> broadcast_index(
             //       std::initializer_list<size_t> out_index,
             //       const Shape &input_shape,
@@ -116,9 +117,9 @@ namespace tinyml {
 
         T &operator()(std::initializer_list<size_t> indices);
 
-        const T &operator()(const std::vector<size_t>& indices) const;
+        const T &operator()(const std::vector<size_t> &indices) const;
 
-        T &operator()(const std::vector<size_t>& indices);
+        T &operator()(const std::vector<size_t> &indices);
 
         bool operator==(const Tensor &other) const;
 
@@ -182,6 +183,8 @@ namespace tinyml {
         std::vector<size_t> strides_;
         bool requires_grad_ = false;
 
+        static std::vector<size_t> _compute_strides(const Shape &shape);
+
         void compute_strides();
 
         void validate_size() const;
@@ -189,6 +192,8 @@ namespace tinyml {
         size_t offset(std::initializer_list<size_t> indices) const;
 
         size_t offset(const std::vector<size_t> &indices) const;
+
+        Shape unravel_index(size_t flat_index, const Shape &shape);
     };
 
     template<typename T>
@@ -250,20 +255,27 @@ namespace tinyml {
     //--------------------------//
     /*PRIVATE METHODS*/
     template<typename T>
-    void Tensor<T>::compute_strides() {
-        const size_t ndim = shape_.ndim();
+    std::vector<size_t> Tensor<T>::_compute_strides(const Shape &shape) {
+        // ROW-MAJOR STRIDES
 
-        strides_.resize(ndim);
+        const size_t ndim = shape.ndim();
+        std::vector<size_t> strides(ndim);
 
         if (ndim == 0) {
-            return;
+            return strides;
         }
 
-        strides_[ndim - 1] = 1;
+        strides[ndim - 1] = 1;
 
         for (size_t i = ndim - 1; i > 0; --i) {
-            strides_[i - 1] = strides_[i] * shape_[i];
+            strides[i - 1] = strides[i] * shape[i];
         }
+        return strides;
+    }
+
+    template<typename T>
+    void Tensor<T>::compute_strides() {
+        strides_ = _compute_strides(shape_);
     }
 
     template<typename T>
@@ -272,6 +284,8 @@ namespace tinyml {
             throw std::invalid_argument("Data size does not match Tensor shape");
     }
 
+
+    // Map standard brace-enclosed multi-index to flat 1D memory offset
     template<typename T>
     size_t Tensor<T>::offset(std::initializer_list<size_t> indices) const {
         if (indices.size() != shape_.ndim()) {
@@ -289,6 +303,7 @@ namespace tinyml {
         return offset;
     }
 
+    // Map dynamic/container multi-index to flat 1D memory offset
     template<typename T>
     size_t Tensor<T>::offset(const std::vector<size_t> &indices) const {
         if (indices.size() != shape_.ndim()) {
@@ -305,6 +320,24 @@ namespace tinyml {
             offset += strides_[dim] * idx_val;
         }
         return offset;
+    }
+
+    template<typename T>
+    typename Tensor<T>::Shape Tensor<T>::unravel_index(size_t flat_index, const Shape &shape) {
+        if (flat_index >= shape_.numel()) {
+            throw std::invalid_argument("Index out of bounds");
+        }
+
+        Shape result;
+        const std::vector<size_t> strides = _compute_strides(shape);
+        result.dims_.resize(shape.ndim());
+
+        for (size_t i = 0; i < shape.ndim(); ++i) {
+            result.dims_[i] = flat_index / strides[i];
+            flat_index %= strides[i];
+        }
+
+        return result;
     }
 
     //--------------------------//
@@ -407,12 +440,12 @@ namespace tinyml {
     }
 
     template<typename T>
-    const T &Tensor<T>::operator()(const std::vector<size_t>& indices) const {
+    const T &Tensor<T>::operator()(const std::vector<size_t> &indices) const {
         return data_[offset(indices)];
     }
 
     template<typename T>
-    T &Tensor<T>::operator()(const std::vector<size_t>& indices) {
+    T &Tensor<T>::operator()(const std::vector<size_t> &indices) {
         return data_[offset(indices)];
     }
 
