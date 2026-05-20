@@ -93,13 +93,13 @@ namespace tinyml {
                 return Shape(result);
             }
 
-            // std::vector<size_t> broadcast_index(
+            // size_t broadcast_index(
             //       std::initializer_list<size_t> out_index,
             //       const Shape &input_shape,
             //       const Shape &output_shape) {
             //
-            //     std::vector<size_t> result;
-            //     return result;
+            //     size_t idx;;
+            //     return idx;
             // }
         };
 
