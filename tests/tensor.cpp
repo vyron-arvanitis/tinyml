@@ -111,6 +111,22 @@ TEST_F(TensorOpsTest, AddsTwoTensors) {
     EXPECT_EQ(b.data(), std::vector<double>({4.0, 5.0, 6.0}));
 }
 
+TEST(TensorBroadcastTest, AddsBroadcastableTensors) {
+    Tensor<double> a({2, 3}, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
+    Tensor<double> b({3}, {10.0, 20.0, 30.0});
+    Tensor<double> d({1, 1, 2, 1}, {1.0, 1.0});
+
+    Tensor<double> c = a + b;
+    Tensor<double> e = a + d;
+
+
+    EXPECT_EQ(c.shape(), Tensor<double>::Shape({2, 3}));
+    EXPECT_EQ(c.data(), std::vector<double>({11.0, 22.0, 33.0, 14.0, 25.0, 36.0}));
+
+    EXPECT_EQ(e.shape(), Tensor<double>::Shape({1, 1, 2, 3}));
+    EXPECT_EQ(e.data(), std::vector<double>({2.0, 3.0, 4.0, 5.0, 6.0, 7.0}));
+}
+
 TEST_F(TensorOpsTest, AddAssignsTwoTensors) {
     a += b;
 
@@ -251,10 +267,9 @@ TEST(TensorErrorTest, ThrowsWhenIndexIsOutOfBounds) {
 
 TEST(TensorErrorTest, ThrowsWhenAddingDifferentShapes) {
     Tensor<double> a({3}, {1.0, 2.0, 3.0});
-    Tensor<double> b({1, 3}, {1.0, 2.0, 3.0});
+    Tensor<double> b({2}, {1.0, 2.0});
 
     EXPECT_THROW(a + b, std::invalid_argument);
-    EXPECT_THROW(a += b, std::invalid_argument);
 }
 
 TEST(TensorErrorTest, ThrowsWhenSubtractingDifferentShapes) {

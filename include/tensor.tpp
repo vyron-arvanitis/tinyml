@@ -72,7 +72,7 @@ namespace tinyml {
 
             size_t operator[](const size_t i) const { return dims_[i]; }
 
-            Shape broadcast_shape(const Shape &a, const Shape &b) {
+            Shape broadcast_shape(const Shape &a, const Shape &b) const {
                 size_t ndim = std::max(a.ndim(), b.ndim());
 
                 std::vector<size_t> result(ndim);
@@ -92,15 +92,6 @@ namespace tinyml {
                 }
                 return Shape(result);
             }
-
-            // size_t broadcast_index(
-            //       std::initializer_list<size_t> out_index,
-            //       const Shape &input_shape,
-            //       const Shape &output_shape) {
-            //
-            //     size_t idx;;
-            //     return idx;
-            // }
         };
 
         explicit Tensor(const Shape &shape);
@@ -194,7 +185,9 @@ namespace tinyml {
         size_t offset(const std::vector<size_t> &indices) const;
 
         // Converts a flat row-major storage index back into a multi-dimensional index.
-        Shape unravel_index(size_t flat_index, const Shape &shape);
+        Shape unravel_index(size_t flat_index, const Shape &shape) const;
+
+        size_t broadcast_offset(const std::vector<size_t> &out_index, const Shape &output_shape) const;
     };
 
     template<typename T>
@@ -324,8 +317,8 @@ namespace tinyml {
     }
 
     template<typename T>
-    typename Tensor<T>::Shape Tensor<T>::unravel_index(size_t flat_index, const Shape &shape) {
-        if (flat_index >= shape_.numel()) {
+    typename Tensor<T>::Shape Tensor<T>::unravel_index(size_t flat_index, const Shape &shape) const {
+        if (flat_index >= shape.numel()) {
             throw std::invalid_argument("Index out of bounds");
         }
 
@@ -339,6 +332,109 @@ namespace tinyml {
         }
 
         return result;
+    }
+
+    //
+    // Convert an output tensor index back into this tensor's flat storage offset.
+    //
+    // This is the key idea behind broadcasting:
+    //
+    //   1. operator+ loops over the output tensor.
+    //
+    //      Example:
+    //          lhs shape: {2, 3}
+    //          rhs shape: {3}
+    //          output shape: {2, 3}
+    //
+    //      The output has 6 elements, so operator+ visits output indices:
+    //          {0, 0}, {0, 1}, {0, 2},
+    //          {1, 0}, {1, 1}, {1, 2}
+    //
+    //   2. For each output index, each input tensor must answer:
+    //
+    //          "Which element of my own data_ should be used here?"
+    //
+    //      For lhs {2, 3}, output index {1, 2} maps to lhs index {1, 2}.
+    //      For rhs {3},    output index {1, 2} maps to rhs index {2}.
+    //
+    //   3. Shapes are aligned from the right.
+    //
+    //          output: {2, 3}
+    //          rhs:       {3}
+    //
+    //      So rhs dimension 0 lines up with output dimension 1.
+    //      The leading output dimension is ignored by rhs because rhs does not
+    //      have that dimension.
+    //
+    //   4. If this tensor has a dimension of size 1, that dimension is repeated.
+    //
+    //      Example:
+    //          input shape:  {1, 3}
+    //          output shape: {2, 3}
+    //
+    //      Output index {0, 2} maps to input index {0, 2}.
+    //      Output index {1, 2} also maps to input index {0, 2}.
+    //
+    //      The input cannot use index 1 in dimension 0 because its size is 1.
+    //
+    //   5. Once we have this tensor's own multi-dimensional input index, we use
+    //      strides_ to convert it into the flat data_ offset.
+    //
+    //      Example for shape {2, 3}, row-major strides are {3, 1}.
+    //      Index {1, 2} becomes:
+    //          1 * 3 + 2 * 1 = 5
+    //
+    template<typename T>
+    size_t Tensor<T>::broadcast_offset(
+        const std::vector<size_t> &out_index,
+        const Shape &out_shape
+    ) const {
+        if (out_index.size() != out_shape.ndim()) {
+            throw std::invalid_argument("Output index size does not match output shape");
+        }
+
+        if (shape_.ndim() > out_shape.ndim()) {
+            throw std::invalid_argument("Input tensor has more dimensions than output shape");
+        }
+
+        size_t offset = 0;
+
+        // The output may have more dimensions than this tensor.
+        // dim_offset tells us how far to shift this tensor's dimensions so they
+        // line up with the right side of the output shape.
+        const size_t out_ndim = out_shape.ndim();
+        const size_t in_ndim = shape_.ndim();
+        const size_t dim_offset = out_ndim - in_ndim;
+
+        for (size_t in_dim = 0; in_dim < in_ndim; ++in_dim) {
+            // Pick the output dimension that corresponds to this input dimension.
+            const size_t out_dim = in_dim + dim_offset;
+
+            if (out_index[out_dim] >= out_shape[out_dim]) {
+                throw std::invalid_argument("Output index out of bounds");
+            }
+
+            if (shape_[in_dim] != 1 && shape_[in_dim] != out_shape[out_dim]) {
+                throw std::invalid_argument("Input tensor is not broadcastable to output shape");
+            }
+
+            size_t input_index_value;
+
+            if (shape_[in_dim] == 1) {
+                // This input dimension is broadcasted/repeated.
+                // No matter where the output is, this input reads index 0.
+                input_index_value = 0;
+            } else {
+                // This dimension is not broadcasted, so use the same coordinate
+                // as the output tensor.
+                input_index_value = out_index[out_dim];
+            }
+
+            // Add this dimension's contribution to the flat row-major offset.
+            offset += input_index_value * strides_[in_dim];
+        }
+
+        return offset;
     }
 
     //--------------------------//
@@ -464,8 +560,22 @@ namespace tinyml {
 
     template<typename T>
     Tensor<T> Tensor<T>::operator+(const Tensor &other) const {
-        Tensor<T> out = *this;
-        out += other;
+        Shape out_shape = shape_.broadcast_shape(shape_, other.shape_);
+        Tensor<T> out(out_shape);
+
+        for (size_t i = 0; i < out.data_.size(); ++i) {
+            // Turn the flat output position into coordinates like {row, col}.
+            Shape out_index_shape = unravel_index(i, out_shape);
+            const std::vector<size_t> &out_index = out_index_shape.dims_;
+
+            // Convert output coordinates into the matching flat offset for
+            // each input tensor, taking broadcasted dimensions into account.
+            const size_t lhs_offset = broadcast_offset(out_index, out_shape);
+            const size_t rhs_offset = other.broadcast_offset(out_index, out_shape);
+
+            out.data_[i] = data_[lhs_offset] + other.data_[rhs_offset];
+        }
+
         return out;
     }
 
