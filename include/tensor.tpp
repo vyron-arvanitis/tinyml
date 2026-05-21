@@ -593,8 +593,19 @@ namespace tinyml {
 
     template<typename T>
     Tensor<T> Tensor<T>::operator-(const Tensor &other) const {
-        Tensor<T> out = *this;
-        out -= other;
+        Shape out_shape = shape_.broadcast_shape(shape_, other.shape_);
+        Tensor<T> out(out_shape);
+
+        for (size_t i = 0; i < out.data_.size(); ++i) {
+            Shape out_index_shape = unravel_index(i, out_shape);
+            const std::vector<size_t> &out_index = out_index_shape.dims_;
+
+            const size_t lhs_offset = broadcast_offset(out_index, out_shape);
+            const size_t rhs_offset = other.broadcast_offset(out_index, out_shape);
+
+            out.data_[i] = data_[lhs_offset] - other.data_[rhs_offset];
+        }
+
         return out;
     }
 
@@ -611,8 +622,19 @@ namespace tinyml {
 
     template<typename T>
     Tensor<T> Tensor<T>::operator*(const Tensor &other) const {
-        Tensor<T> out = *this;
-        out *= other;
+        Shape out_shape = shape_.broadcast_shape(shape_, other.shape_);
+        Tensor<T> out(out_shape);
+
+        for (size_t i = 0; i < out.data_.size(); ++i) {
+            Shape out_index_shape = unravel_index(i, out_shape);
+            const std::vector<size_t> &out_index = out_index_shape.dims_;
+
+            const size_t lhs_offset = broadcast_offset(out_index, out_shape);
+            const size_t rhs_offset = other.broadcast_offset(out_index, out_shape);
+
+            out.data_[i] = data_[lhs_offset] * other.data_[rhs_offset];
+        }
+
         return out;
     }
 
@@ -629,8 +651,19 @@ namespace tinyml {
 
     template<typename T>
     Tensor<T> Tensor<T>::operator/(const Tensor &other) const {
-        Tensor<T> out = *this;
-        out /= other;
+        Shape out_shape = shape_.broadcast_shape(shape_, other.shape_);
+        Tensor<T> out(out_shape);
+
+        for (size_t i = 0; i < out.data_.size(); ++i) {
+            Shape out_index_shape = unravel_index(i, out_shape);
+            const std::vector<size_t> &out_index = out_index_shape.dims_;
+
+            const size_t lhs_offset = broadcast_offset(out_index, out_shape);
+            const size_t rhs_offset = other.broadcast_offset(out_index, out_shape);
+
+            out.data_[i] = data_[lhs_offset] / other.data_[rhs_offset];
+        }
+
         return out;
     }
 
