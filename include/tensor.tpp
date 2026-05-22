@@ -167,6 +167,8 @@ namespace tinyml {
 
         T mean() const;
 
+        bool requires_grad() const;
+
     private:
         std::vector<T> data_;
         std::vector<T> grad_;
@@ -712,6 +714,11 @@ namespace tinyml {
     template<typename T>
     T Tensor<T>::mean() const {
         return this->sum() / static_cast<T>(shape_.numel());
+    }
+
+    template<typename T>
+    bool Tensor<T>::requires_grad() const {
+        return requires_grad_;
     }
 }
 

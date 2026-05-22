@@ -59,6 +59,16 @@ TEST(TensorTest, InitializesAndClearsGrad) {
     EXPECT_EQ(t.grad(), std::vector<double>({0.0, 0.0, 0.0}));
 }
 
+TEST(TensorTest, RequiresGradTest) {
+    Tensor<double> t({3}, {1.0, 2.0, 3.0}, false);
+    Tensor<double> b({3}, {1.0, 2.0, 3.0}, true);
+
+
+    EXPECT_EQ(false, t.requires_grad());
+    EXPECT_EQ(true, b.requires_grad());
+
+}
+
 TEST(TensorTest, ComputesSumAndMean) {
     Tensor<double> t({2, 3}, {1.0, 2.0, 3.0, 4.0, 5.0, 6.0});
 
@@ -319,3 +329,5 @@ TEST(TensorBroadcastTest, DividesVectorAndMatrix) {
     EXPECT_EQ(d.shape(), Tensor<double>::Shape({2, 3}));
     EXPECT_EQ(d.data(), std::vector<double>({1.0, 0.5, 0.5, 0.25, 0.2, 0.25}));
 }
+
+
