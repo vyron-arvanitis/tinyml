@@ -175,6 +175,7 @@ namespace tinyml {
         Shape shape_;
         std::vector<size_t> strides_;
         bool requires_grad_ = false;
+        std::vector<Tensor*> parents_;
 
         static std::vector<size_t> _compute_strides(const Shape &shape);
 
